@@ -24,7 +24,10 @@ def scan(
     output_dir: Path | None = typer.Option(None, "--output-dir", help="Directory to save reports in"),
     fail_on: str = typer.Option("none", "--fail-on", help="CI/CD failure threshold (none, low, medium, high, critical)"),
     explain: bool = typer.Option(True, "--explain/--no-explain", help="Generate AI/template explanations for findings"),
-    explain_mode: str = typer.Option("template", "--explain-mode", help="Explanation engine to use (template, none)")
+    explain_mode: str = typer.Option("template", "--explain-mode", help="Explanation engine to use (template, none)"),
+    use_ollama: bool = typer.Option(False, "--use-ollama", help="Use local Ollama for AI explanations"),
+    ollama_model: str = typer.Option("llama3", "--ollama-model", help="Ollama model to use"),
+    ollama_url: str = typer.Option("http://localhost:11434", "--ollama-url", help="Ollama API URL")
 ):
     """
     AgilityShift local-first PQC migration breakage scanner.
@@ -99,11 +102,17 @@ def scan(
     suggester = SuggestionEngine()
     findings = suggester.suggest_for_findings(findings)
 
-    if explain and explain_mode in ["template", "none"]:
+    if explain and (explain_mode in ["template", "none"] or use_ollama):
         from agilityshift.ai.explain_template import TemplateExplanationEngine
         from agilityshift.ai.explain_llm import LLMExplanationEngine
         
-        engine = LLMExplanationEngine(provider=explain_mode) if explain_mode == "none" else TemplateExplanationEngine()
+        if use_ollama:
+            engine = LLMExplanationEngine(provider="ollama", ollama_model=ollama_model, ollama_url=ollama_url)
+        elif explain_mode == "none":
+            engine = LLMExplanationEngine(provider="none")
+        else:
+            engine = TemplateExplanationEngine()
+            
         findings = engine.explain_findings(findings)
 
     console.print(f"Findings found: {len(findings)}\n")

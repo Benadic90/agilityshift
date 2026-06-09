@@ -21,6 +21,7 @@ agilityshift/fixes/suggestions.py
 agilityshift/pqc/__init__.py
 agilityshift/pqc/profile_loader.py
 agilityshift/reports/__init__.py
+agilityshift/reports/cbom_report.py
 agilityshift/reports/html_report.py
 agilityshift/reports/json_report.py
 agilityshift/reports/sarif_report.py
@@ -33,11 +34,14 @@ agilityshift/scanner/db_schema_detector.py
 agilityshift/scanner/limit_detector.py
 agilityshift/scanner/line_mapper.py
 agilityshift/scanner/repo_loader.py
+tests/test_ai_explanations.py
 tests/test_api_schema_detector.py
+tests/test_cbom_report.py
 tests/test_db_schema_detector.py
 tests/test_exit_policy.py
 tests/test_limit_detector.py
 tests/test_repo_loader.py
 tests/test_reports.py
 tests/test_risk_scorer.py
+tests/test_sarif_report.py
 tests/test_suggestions.py

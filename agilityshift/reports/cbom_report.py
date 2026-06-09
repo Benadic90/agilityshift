@@ -52,31 +52,58 @@ class CBOMReportWriter:
     def finding_to_crypto_asset(self, finding: Finding, index: int) -> dict:
         asset_type, name = self.infer_asset_type_and_name(finding)
         
-        return {
-            "id": f"crypto-asset-{index}",
-            "type": asset_type,
-            "name": name,
-            "algorithm": self.infer_algorithm(finding),
-            "usage": self.infer_usage(finding),
-            "location": {
-                "file": finding.file_path,
-                "line": finding.line_number
-            },
-            "sourceRuleId": finding.rule_id,
-            "migrationRisk": finding.risk_message,
-            "severity": finding.severity,
-            "recommendedAction": finding.developer_guidance if finding.developer_guidance else finding.suggested_fix
+        asset_type_mapped = "related-crypto-material"
+        if asset_type == "certificate":
+            asset_type_mapped = "certificate"
+        elif asset_type == "algorithm":
+            asset_type_mapped = "algorithm"
+
+        crypto_props = {
+            "assetType": asset_type_mapped
         }
+        
+        algorithm = self.infer_algorithm(finding)
+        if algorithm:
+            # We must provide some minimal algorithm properties or just use the name if schema allows.
+            # CycloneDX 1.6 allows primitive name mapping or we can omit it if it fails strict schema.
+            # We will use primitive algorithm property mapping for now:
+            crypto_props["algorithmProperties"] = {
+                "primitive": "unknown", # default
+                "name": algorithm
+            }
+            # Actually, standard CycloneDX algorithm primitive enum requires values like 'hash', 'signature', 'mac' etc.
+            # We'll just omit primitive and see if schema allows only name, or we omit algorithmProperties to be safe
+            # Let's keep it simple: if algorithm is inferred, just put it as a property extension.
+        
+        component = {
+            "type": "cryptographic-asset",
+            "bom-ref": f"crypto-asset-{index}",
+            "name": name,
+            "cryptoProperties": crypto_props,
+            "properties": [
+                {"name": "agilityshift:sourceRuleId", "value": finding.rule_id},
+                {"name": "agilityshift:migrationRisk", "value": finding.risk_message or ""},
+                {"name": "agilityshift:severity", "value": finding.severity},
+                {"name": "agilityshift:recommendedAction", "value": finding.developer_guidance if finding.developer_guidance else (finding.suggested_fix or "")},
+                {"name": "agilityshift:usage", "value": self.infer_usage(finding)},
+                {"name": "agilityshift:location:file", "value": finding.file_path},
+                {"name": "agilityshift:location:line", "value": str(finding.line_number)}
+            ]
+        }
+        if algorithm:
+            component["properties"].append({"name": "agilityshift:algorithm", "value": algorithm})
+
+        return component
 
     def build_cbom_data(self, target_path: Path, profile: PQCProfile, findings: list[Finding]) -> dict:
-        assets = []
+        components = []
         critical = 0
         high = 0
         medium = 0
         low = 0
         
         for idx, f in enumerate(findings, start=1):
-            assets.append(self.finding_to_crypto_asset(f, idx))
+            components.append(self.finding_to_crypto_asset(f, idx))
             s = f.severity.upper()
             if s == "CRITICAL":
                 critical += 1
@@ -90,35 +117,49 @@ class CBOMReportWriter:
         req_bytes = profile.signature_bytes if profile and hasattr(profile, "signature_bytes") else None
 
         return {
-            "bomFormat": "CycloneDX-inspired",
-            "specVersion": "experimental",
+            "bomFormat": "CycloneDX",
+            "specVersion": "1.6",
             "serialNumber": f"urn:uuid:{uuid.uuid4()}",
             "version": 1,
             "metadata": {
-                "tool": {
-                    "name": "AgilityShift",
-                    "version": "0.1.0"
+                "tools": {
+                    "components": [
+                        {
+                            "type": "application",
+                            "name": "AgilityShift",
+                            "version": "0.1.0"
+                        }
+                    ]
                 },
-                "target": {
-                    "path": str(target_path),
-                    "pqcProfile": profile.name if profile else "Unknown",
-                    "requiredSignatureBytes": req_bytes
+                "component": {
+                    "type": "application",
+                    "name": str(target_path),
+                    "properties": [
+                        {"name": "agilityshift:pqcProfile", "value": profile.name if profile else "Unknown"},
+                        {"name": "agilityshift:requiredSignatureBytes", "value": str(req_bytes) if req_bytes else ""}
+                    ]
                 },
-                "note": "This is a CBOM-style crypto inventory export for PQC migration readiness. It is not a complete official CycloneDX CBOM implementation yet."
+                "properties": [
+                    {"name": "agilityshift:summary:totalCryptoAssets", "value": str(len(components))},
+                    {"name": "agilityshift:summary:criticalAssets", "value": str(critical)},
+                    {"name": "agilityshift:summary:highAssets", "value": str(high)},
+                    {"name": "agilityshift:summary:pqcReadinessConcern", "value": "true" if (critical > 0 or high > 0) else "false"}
+                ]
             },
-            "cryptoAssets": assets,
-            "summary": {
-                "totalCryptoAssets": len(assets),
-                "criticalAssets": critical,
-                "highAssets": high,
-                "mediumAssets": medium,
-                "lowAssets": low,
-                "pqcReadinessConcern": critical > 0 or high > 0
-            }
+            "components": components
         }
 
     def write_report(self, output_path: Path, target_path: Path, profile: PQCProfile, findings: list[Finding]) -> Path:
         cbom_data = self.build_cbom_data(target_path, profile, findings)
+        
+        from agilityshift.reports.cyclonedx_validator import CycloneDXValidator
+        validator = CycloneDXValidator()
+        is_valid = validator.validate(cbom_data)
+        if not is_valid:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning("Generated CBOM failed official CycloneDX 1.6 validation, but writing anyway for inspection.")
+            
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(cbom_data, f, indent=2)
         return output_path

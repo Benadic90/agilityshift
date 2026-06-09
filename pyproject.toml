@@ -11,8 +11,16 @@ dependencies = [
     "typer",
     "rich",
     "pyyaml",
-    "jinja2"
+    "jinja2",
+    "jsonschema",
+    "tree-sitter",
+    "tree-sitter-javascript",
+    "tree-sitter-typescript",
+    "requests"
 ]
 
 [project.scripts]
 agilityshift = "agilityshift.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["agilityshift*"]
