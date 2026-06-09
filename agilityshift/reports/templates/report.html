@@ -83,10 +83,10 @@
             font-size: 1.75rem;
             font-weight: 700;
         }
-        
-        .stat-card .value.readiness {
-            color: {% if summary.readiness_score < 50 %}var(--critical){% elif summary.readiness_score < 80 %}var(--high){% else %}var(--low){% endif %};
-        }
+
+        .stat-card .value.readiness-critical { color: var(--critical); }
+        .stat-card .value.readiness-high { color: var(--high); }
+        .stat-card .value.readiness-low { color: var(--low); }
 
         .warning-card {
             border-radius: 8px;
@@ -260,7 +260,7 @@
             </div>
             <div class="stat-card">
                 <div class="label">PQC Readiness Score</div>
-                <div class="value readiness">{{ summary.readiness_score }}/100</div>
+                <div class="value readiness-{% if summary.readiness_score < 50 %}critical{% elif summary.readiness_score < 80 %}high{% else %}low{% endif %}">{{ summary.readiness_score }}/100</div>
             </div>
             <div class="stat-card">
                 <div class="label">Files Scanned</div>

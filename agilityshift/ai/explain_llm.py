@@ -6,7 +6,7 @@ from agilityshift.ai.explain_template import TemplateExplanationEngine
 logger = logging.getLogger(__name__)
 
 class LLMExplanationEngine:
-    def __init__(self, provider: str = "none", ollama_model: str = "llama3", ollama_url: str = "http://localhost:11434"):
+    def __init__(self, provider: str = "ollama", ollama_model: str = "qwen2.5-coder:0.5b", ollama_url: str = "http://localhost:11434"):
         self.provider = provider
         self.ollama_model = ollama_model
         self.ollama_url = ollama_url.rstrip('/')

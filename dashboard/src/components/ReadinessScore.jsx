@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 function ReadinessScore({ score }) {
   let colorClass = 'text-green-500';

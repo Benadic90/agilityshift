@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 function SuggestedFixes({ findings }) {
   const fixableFindings = findings.filter(f => f.suggested_fix);

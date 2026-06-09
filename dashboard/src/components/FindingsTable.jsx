@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 function FindingsTable({ findings, onSelectFinding }) {
   const [filterSev, setFilterSev] = useState('ALL');

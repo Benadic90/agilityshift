@@ -2,6 +2,7 @@ import typer
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
+from typing import Any
 
 from agilityshift.pqc.profile_loader import PQCProfileLoader
 from agilityshift.risk.scorer import RiskScorer
@@ -25,8 +26,8 @@ def scan(
     fail_on: str = typer.Option("none", "--fail-on", help="CI/CD failure threshold (none, low, medium, high, critical)"),
     explain: bool = typer.Option(True, "--explain/--no-explain", help="Generate AI/template explanations for findings"),
     explain_mode: str = typer.Option("template", "--explain-mode", help="Explanation engine to use (template, none)"),
-    use_ollama: bool = typer.Option(False, "--use-ollama", help="Use local Ollama for AI explanations"),
-    ollama_model: str = typer.Option("llama3", "--ollama-model", help="Ollama model to use"),
+    use_ollama: bool = typer.Option(True, "--use-ollama", help="Use local Ollama for AI explanations"),
+    ollama_model: str = typer.Option("qwen2.5-coder:0.5b", "--ollama-model", help="Ollama model to use"),
     ollama_url: str = typer.Option("http://localhost:11434", "--ollama-url", help="Ollama API URL")
 ):
     """
@@ -85,14 +86,17 @@ def scan(
     console.print()
 
     from agilityshift.scanner.limit_detector import JavaScriptLimitDetector
+    from agilityshift.scanner.python_limit_detector import PythonLimitDetector
     from agilityshift.scanner.db_schema_detector import SQLSchemaDetector
     from agilityshift.scanner.api_schema_detector import APISchemaDetector
     
     js_detector = JavaScriptLimitDetector()
+    py_detector = PythonLimitDetector()
     sql_detector = SQLSchemaDetector()
     api_detector = APISchemaDetector()
     
     findings = js_detector.detect(summary.supported_files)
+    findings.extend(py_detector.detect(summary.supported_files))
     findings.extend(sql_detector.detect(summary.supported_files))
     findings.extend(api_detector.detect(summary.supported_files))
 
@@ -106,6 +110,7 @@ def scan(
         from agilityshift.ai.explain_template import TemplateExplanationEngine
         from agilityshift.ai.explain_llm import LLMExplanationEngine
         
+        engine: Any = None
         if use_ollama:
             engine = LLMExplanationEngine(provider="ollama", ollama_model=ollama_model, ollama_url=ollama_url)
         elif explain_mode == "none":
@@ -118,7 +123,7 @@ def scan(
     console.print(f"Findings found: {len(findings)}\n")
 
     if not findings:
-        console.print("[bold green]No JavaScript, SQL, or API fixed-limit findings detected.[/bold green]")
+        console.print("[bold green]No JavaScript, Python, SQL, or API fixed-limit findings detected.[/bold green]")
         readiness = 100
         sev_summary = {}
     else:

@@ -2,6 +2,7 @@ import json
 import uuid
 from pathlib import Path
 from agilityshift.models import Finding, PQCProfile
+from typing import Any
 
 class CBOMReportWriter:
     def infer_asset_type_and_name(self, finding: Finding) -> tuple[str, str]:
@@ -58,7 +59,7 @@ class CBOMReportWriter:
         elif asset_type == "algorithm":
             asset_type_mapped = "algorithm"
 
-        crypto_props = {
+        crypto_props: dict[str, Any] = {
             "assetType": asset_type_mapped
         }
         
@@ -75,7 +76,7 @@ class CBOMReportWriter:
             # We'll just omit primitive and see if schema allows only name, or we omit algorithmProperties to be safe
             # Let's keep it simple: if algorithm is inferred, just put it as a property extension.
         
-        component = {
+        component: dict[str, Any] = {
             "type": "cryptographic-asset",
             "bom-ref": f"crypto-asset-{index}",
             "name": name,

@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 function SummaryCards({ scan, severitySummary, totalFindings }) {
   const stats = [

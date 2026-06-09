@@ -1,0 +1,343 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "AgilityShift",
+          "informationUri": "https://github.com/Benadic90/agilityshift",
+          "rules": [
+            {
+              "id": "JS_CRYPTO_LIMIT_CONSTANT",
+              "name": "Hardcoded cryptographic size constant",
+              "shortDescription": {
+                "text": "Hardcoded cryptographic size constant"
+              },
+              "fullDescription": {
+                "text": "Hardcoded constants for crypto sizes will break during PQC migration."
+              },
+              "help": {
+                "text": "Store crypto-size limits in a configurable PQC migration policy."
+              }
+            },
+            {
+              "id": "JS_BUFFER_ALLOC_FIXED_SIZE",
+              "name": "Fixed-size Buffer allocation",
+              "shortDescription": {
+                "text": "Fixed-size Buffer allocation"
+              },
+              "fullDescription": {
+                "text": "This buffer assumes signatures fit inside a fixed byte limit."
+              },
+              "help": {
+                "text": "Replace Buffer.alloc(number) with Buffer.from(signature, \"base64\") and validate the decoded length."
+              }
+            },
+            {
+              "id": "JS_CRYPTO_LENGTH_LIMIT",
+              "name": "Hardcoded crypto length validation",
+              "shortDescription": {
+                "text": "Hardcoded crypto length validation"
+              },
+              "fullDescription": {
+                "text": "Hardcoded length checks will fail when PQC keys and signatures are introduced."
+              },
+              "help": {
+                "text": "Move crypto-size limits into a configuration file based on the selected PQC migration profile."
+              }
+            },
+            {
+              "id": "JS_CRYPTO_TRUNCATION_LIMIT",
+              "name": "Possible crypto material truncation",
+              "shortDescription": {
+                "text": "Possible crypto material truncation"
+              },
+              "fullDescription": {
+                "text": "Truncating crypto material will silently destroy PQC keys and signatures."
+              },
+              "help": {
+                "text": "Do not use slice/substring/substr to shorten cryptographic material. Validate full input instead."
+              }
+            },
+            {
+              "id": "SQL_CRYPTO_VARCHAR_LIMIT",
+              "name": "Crypto-related VARCHAR column limit",
+              "shortDescription": {
+                "text": "Crypto-related VARCHAR column limit"
+              },
+              "fullDescription": {
+                "text": "This database column may be too small for larger post-quantum signatures, keys, certificates, or proofs."
+              },
+              "help": {
+                "text": "Use TEXT, BYTEA, VARBINARY, BLOB, or increase the column size according to the target PQC profile and database engine."
+              }
+            },
+            {
+              "id": "API_CRYPTO_MAX_LENGTH_LIMIT",
+              "name": "Crypto-related API maxLength limit",
+              "shortDescription": {
+                "text": "Crypto-related API maxLength limit"
+              },
+              "fullDescription": {
+                "text": "This API contract may reject larger post-quantum signatures, keys, certificates, or proofs because maxLength is too small."
+              },
+              "help": {
+                "text": "Increase maxLength based on the selected PQC profile or make the limit configurable."
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "JS_CRYPTO_LIMIT_CONSTANT",
+          "level": "error",
+          "message": {
+            "text": "Hardcoded cryptographic size constant ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 bytes/chars limit. This may break during PQC migration. Suggested fix: Store crypto-size limits in a configurable PQC migration policy."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src\\auth\\verify.js"
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS_CRYPTO_LIMIT_CONSTANT",
+          "level": "error",
+          "message": {
+            "text": "Hardcoded cryptographic size constant ML-DSA-65 requires 3309 bytes, which is 6.46x larger than the current 512 bytes/chars limit. This is a high migration breakage risk. Suggested fix: Store crypto-size limits in a configurable PQC migration policy."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src\\auth\\verify.js"
+                },
+                "region": {
+                  "startLine": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS_BUFFER_ALLOC_FIXED_SIZE",
+          "level": "error",
+          "message": {
+            "text": "Fixed-size Buffer allocation ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 bytes limit. This may break during PQC migration. Suggested fix: Replace Buffer.alloc(number) with Buffer.from(signature, \"base64\") and validate the decoded length."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src\\auth\\verify.js"
+                },
+                "region": {
+                  "startLine": 9
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS_CRYPTO_LENGTH_LIMIT",
+          "level": "error",
+          "message": {
+            "text": "Hardcoded crypto length validation ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 chars/bytes limit. This may break during PQC migration. Suggested fix: Move crypto-size limits into a configuration file based on the selected PQC migration profile."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src\\auth\\verify.js"
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS_CRYPTO_TRUNCATION_LIMIT",
+          "level": "error",
+          "message": {
+            "text": "Possible crypto material truncation ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 chars/bytes limit. This may break during PQC migration. Suggested fix: Do not use slice/substring/substr to shorten cryptographic material. Validate full input instead."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src\\auth\\verify.js"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SQL_CRYPTO_VARCHAR_LIMIT",
+          "level": "error",
+          "message": {
+            "text": "Crypto-related VARCHAR column limit ML-DSA-65 requires 3309 bytes, which is 6.46x larger than the current 512 characters limit. This is a high migration breakage risk. Note: Character limits may differ from byte limits depending on encoding. Suggested fix: Use TEXT, BYTEA, VARBINARY, BLOB, or increase the column size according to the target PQC profile and database engine."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "schema.sql"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SQL_CRYPTO_VARCHAR_LIMIT",
+          "level": "warning",
+          "message": {
+            "text": "Crypto-related VARCHAR column limit Target PQC size is larger than the current limit. Review and increase this limit. Note: Character limits may differ from byte limits depending on encoding. Suggested fix: Use TEXT, BYTEA, VARBINARY, BLOB, or increase the column size according to the target PQC profile and database engine."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "schema.sql"
+                },
+                "region": {
+                  "startLine": 9
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SQL_CRYPTO_VARCHAR_LIMIT",
+          "level": "error",
+          "message": {
+            "text": "Crypto-related VARCHAR column limit ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 characters limit. This may break during PQC migration. Note: Character limits may differ from byte limits depending on encoding. Suggested fix: Use TEXT, BYTEA, VARBINARY, BLOB, or increase the column size according to the target PQC profile and database engine."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "schema.sql"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SQL_CRYPTO_VARCHAR_LIMIT",
+          "level": "error",
+          "message": {
+            "text": "Crypto-related VARCHAR column limit ML-DSA-65 requires 3309 bytes, which is 6.46x larger than the current 512 characters limit. This is a high migration breakage risk. Note: Character limits may differ from byte limits depending on encoding. Suggested fix: Use TEXT, BYTEA, VARBINARY, BLOB, or increase the column size according to the target PQC profile and database engine."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "schema.sql"
+                },
+                "region": {
+                  "startLine": 24
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SQL_CRYPTO_VARCHAR_LIMIT",
+          "level": "error",
+          "message": {
+            "text": "Crypto-related VARCHAR column limit ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 characters limit. This may break during PQC migration. Note: Character limits may differ from byte limits depending on encoding. Suggested fix: Use TEXT, BYTEA, VARBINARY, BLOB, or increase the column size according to the target PQC profile and database engine."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "schema.sql"
+                },
+                "region": {
+                  "startLine": 26
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API_CRYPTO_MAX_LENGTH_LIMIT",
+          "level": "error",
+          "message": {
+            "text": "Crypto-related API maxLength limit ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 characters limit. This may break during PQC migration. Note: Character limits may differ from byte limits depending on encoding. Suggested fix: Increase maxLength based on the selected PQC profile or make the limit configurable."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "openapi.yaml"
+                },
+                "region": {
+                  "startLine": 27
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API_CRYPTO_MAX_LENGTH_LIMIT",
+          "level": "error",
+          "message": {
+            "text": "Crypto-related API maxLength limit ML-DSA-65 requires 3309 bytes, which is 6.46x larger than the current 512 characters limit. This is a high migration breakage risk. Note: Character limits may differ from byte limits depending on encoding. Suggested fix: Increase maxLength based on the selected PQC profile or make the limit configurable."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "openapi.yaml"
+                },
+                "region": {
+                  "startLine": 30
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API_CRYPTO_MAX_LENGTH_LIMIT",
+          "level": "warning",
+          "message": {
+            "text": "Crypto-related API maxLength limit Target PQC size is larger than the current limit. Review and increase this limit. Note: Character limits may differ from byte limits depending on encoding. Suggested fix: Increase maxLength based on the selected PQC profile or make the limit configurable."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "openapi.yaml"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

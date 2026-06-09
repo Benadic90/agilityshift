@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import reportData from './data/sample-report.json';
 import SummaryCards from './components/SummaryCards';
 import ReadinessScore from './components/ReadinessScore';
