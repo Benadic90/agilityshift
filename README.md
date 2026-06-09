@@ -15,3 +15,19 @@ agilityshift scan ./examples/vulnerable-bank-api --report html --fail-on critica
 
 ## Current Status
 Phase 0 and Phase 1 setup.
+Phase 2 scanner foundation is active.
+
+## Phase 3: JavaScript/TypeScript Fixed-Limit Detector
+
+Current detector supports:
+- `Buffer.alloc(number)`
+- `Buffer.allocUnsafe(number)`
+- crypto-like length checks
+- crypto-like truncation
+- crypto-size constants
+
+Example:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api
+```
+

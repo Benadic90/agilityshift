@@ -1,0 +1,2 @@
+[console_scripts]
+agilityshift = agilityshift.cli:app
