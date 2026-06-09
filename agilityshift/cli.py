@@ -55,15 +55,21 @@ def scan(
         console.print()
 
     from agilityshift.scanner.limit_detector import JavaScriptLimitDetector
-    detector = JavaScriptLimitDetector()
-    findings = detector.detect(summary.supported_files)
+    from agilityshift.scanner.db_schema_detector import SQLSchemaDetector
+    
+    js_detector = JavaScriptLimitDetector()
+    sql_detector = SQLSchemaDetector()
+    
+    findings = js_detector.detect(summary.supported_files)
+    findings.extend(sql_detector.detect(summary.supported_files))
 
     if not findings:
-        console.print("[bold green]No JavaScript fixed-limit findings detected.[/bold green]")
+        console.print("[bold green]No JavaScript or SQL fixed-limit findings detected.[/bold green]")
     else:
         console.print("[bold]Findings[/bold]")
         ftable = Table(show_header=True, box=None)
         ftable.add_column("Severity")
+        ftable.add_column("Type")
         ftable.add_column("Rule")
         ftable.add_column("File")
         ftable.add_column("Line")
@@ -75,6 +81,7 @@ def scan(
             lim_str = f"{f.current_limit} {f.limit_unit}" if f.current_limit is not None else "N/A"
             ftable.add_row(
                 f"[{sev_color}]{f.severity}[/{sev_color}]",
+                f.finding_type,
                 f.rule_id,
                 f.file_path,
                 str(f.line_number),
@@ -84,9 +91,9 @@ def scan(
         console.print(ftable)
 
     console.print()
-    console.print("Phase 3 complete:")
-    console.print("JavaScript/TypeScript fixed-limit detector is active.")
-    console.print("SQL and OpenAPI detectors will be added in later phases.")
+    console.print("Phase 4 complete:")
+    console.print("JavaScript and SQL database limit detectors are active.")
+    console.print("OpenAPI/YAML detector will be added in Phase 5.")
 
 if __name__ == "__main__":
     app()

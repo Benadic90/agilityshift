@@ -31,3 +31,20 @@ Example:
 agilityshift scan ./examples/vulnerable-bank-api
 ```
 
+## Phase 4: SQL Database Schema Scanner
+
+Current SQL detector supports:
+- `signature VARCHAR(number)`
+- `public_key VARCHAR(number)`
+- `certificate VARCHAR(number)`
+- `jwt_token VARCHAR(number)`
+- `attestation_proof VARCHAR(number)`
+- crypto-related `CHAR` / `VARCHAR` / `NVARCHAR` / `VARBINARY` limits
+
+Example:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api
+```
+
+This helps detect database storage limits that may break when cryptographic signatures, keys, certificates, or proofs become larger during post-quantum migration.
+
