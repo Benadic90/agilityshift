@@ -21,11 +21,19 @@ def scan(
     list_profiles: bool = typer.Option(False, "--list-profiles", help="List available PQC profiles"),
     show_fixes: bool = typer.Option(True, "--show-fixes/--no-show-fixes", help="Show fix suggestions"),
     report: str = typer.Option("none", "--report", help="Report format to generate (none, json, html, all)"),
-    output_dir: Path | None = typer.Option(None, "--output-dir", help="Directory to save reports in")
+    output_dir: Path | None = typer.Option(None, "--output-dir", help="Directory to save reports in"),
+    fail_on: str = typer.Option("none", "--fail-on", help="CI/CD failure threshold (none, low, medium, high, critical)")
 ):
     """
     AgilityShift local-first PQC migration breakage scanner.
     """
+    try:
+        from agilityshift.ci.exit_policy import ExitPolicy
+        exit_policy = ExitPolicy(fail_on)
+    except ValueError as e:
+        console.print(f"[bold red]Error:[/bold red] {str(e)}")
+        raise typer.Exit(1)
+
     try:
         loader = PQCProfileLoader()
         if list_profiles:
@@ -93,6 +101,8 @@ def scan(
 
     if not findings:
         console.print("[bold green]No JavaScript, SQL, or API fixed-limit findings detected.[/bold green]")
+        readiness = 100
+        sev_summary = {}
     else:
         sev_summary = scorer.summarize_severity(findings)
         console.print("[bold]Severity Summary[/bold]")
@@ -174,9 +184,15 @@ def scan(
             console.print(f"- {report_file}")
 
     console.print()
-    console.print("Phase 8 complete:")
-    console.print("JSON and HTML report generation are active.")
-    console.print("CI/CD failure gate will be added in Phase 9.")
+    
+    # Process CI/CD exit policy at the very end
+    if fail_on != "none":
+        console.print("\n" + exit_policy.summary_message(findings))
+        
+    if exit_policy.should_fail(findings):
+        raise typer.Exit(code=1)
+        
+    raise typer.Exit(code=0)
 
 if __name__ == "__main__":
     app()

@@ -1,24 +1,37 @@
-name: AgilityShift CI
+name: AgilityShift PQC Scan
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 jobs:
-  scan:
+  pqc-scan:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
-      # Placeholder for future scan command:
-      # - name: Run AgilityShift Scanner
-      #   run: |
-      #     pip install .
-      #     agilityshift scan . --fail-on critical
+      - name: Install AgilityShift
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run AgilityShift scan
+        # This demo workflow intentionally fails when critical PQC migration breakage risks are found.
+        run: |
+          agilityshift scan ./examples/vulnerable-bank-api --report all --fail-on critical
+
+      - name: Upload AgilityShift reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agilityshift-reports
+          path: |
+            agilityshift-report.html
+            agilityshift-report.json

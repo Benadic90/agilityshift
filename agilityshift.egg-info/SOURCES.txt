@@ -35,6 +35,7 @@ agilityshift/scanner/line_mapper.py
 agilityshift/scanner/repo_loader.py
 tests/test_api_schema_detector.py
 tests/test_db_schema_detector.py
+tests/test_exit_policy.py
 tests/test_limit_detector.py
 tests/test_repo_loader.py
 tests/test_reports.py

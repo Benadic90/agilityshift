@@ -124,3 +124,27 @@ Expected generated files:
 - `agilityshift-report.json`
 - `agilityshift-report.html`
 
+## Phase 9: CI/CD Failure Gate
+
+Current CI/CD features:
+- `--fail-on` threshold
+- Supported thresholds: `none`, `low`, `medium`, `high`, `critical`
+- Exit code 1 when matching findings exist
+- GitHub Actions workflow
+- Reports still generate before failure
+
+Example:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api --report all --fail-on critical
+```
+
+Expected result:
+```text
+CI/CD Gate Result: FAILED
+Deployment blocked before production failure.
+```
+This makes AgilityShift useful in CI/CD because teams can block unsafe PQC migration changes before production deployment.
+
+### GitHub Actions
+
+See `.github/workflows/agilityshift.yml` for the standard integration workflow. The demo workflow intentionally fails because the example vulnerable API contains critical findings.
