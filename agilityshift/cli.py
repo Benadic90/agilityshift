@@ -56,15 +56,18 @@ def scan(
 
     from agilityshift.scanner.limit_detector import JavaScriptLimitDetector
     from agilityshift.scanner.db_schema_detector import SQLSchemaDetector
+    from agilityshift.scanner.api_schema_detector import APISchemaDetector
     
     js_detector = JavaScriptLimitDetector()
     sql_detector = SQLSchemaDetector()
+    api_detector = APISchemaDetector()
     
     findings = js_detector.detect(summary.supported_files)
     findings.extend(sql_detector.detect(summary.supported_files))
+    findings.extend(api_detector.detect(summary.supported_files))
 
     if not findings:
-        console.print("[bold green]No JavaScript or SQL fixed-limit findings detected.[/bold green]")
+        console.print("[bold green]No JavaScript, SQL, or API fixed-limit findings detected.[/bold green]")
     else:
         console.print("[bold]Findings[/bold]")
         ftable = Table(show_header=True, box=None)
@@ -91,9 +94,9 @@ def scan(
         console.print(ftable)
 
     console.print()
-    console.print("Phase 4 complete:")
-    console.print("JavaScript and SQL database limit detectors are active.")
-    console.print("OpenAPI/YAML detector will be added in Phase 5.")
+    console.print("Phase 5 complete:")
+    console.print("JavaScript, SQL, and API contract limit detectors are active.")
+    console.print("Risk scoring and reports will be added in later phases.")
 
 if __name__ == "__main__":
     app()

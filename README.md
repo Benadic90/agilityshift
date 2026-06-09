@@ -48,3 +48,20 @@ agilityshift scan ./examples/vulnerable-bank-api
 
 This helps detect database storage limits that may break when cryptographic signatures, keys, certificates, or proofs become larger during post-quantum migration.
 
+## Phase 5: OpenAPI / YAML / JSON API Contract Scanner
+
+Current API detector supports:
+- `signature maxLength`
+- `publicKey maxLength`
+- `certificate maxLength`
+- `token/jwt maxLength`
+- `proof/attestation maxLength`
+- basic small request body limits
+
+Example:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api
+```
+
+This helps detect API validation limits that may reject larger post-quantum signatures, keys, certificates, or proofs during migration.
+
