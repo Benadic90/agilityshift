@@ -102,11 +102,11 @@ class JavaScriptLimitDetector:
                 # Rule 4
                 for match in self.RE_CRYPTO_TRUNC.finditer(line):
                     val = match.group(2)
+                    trunc_limit: int | None = None
                     if val.isdigit():
-                        limit = int(val)
-                        sev = "HIGH" if limit <= 512 else "MEDIUM"
+                        trunc_limit = int(val)
+                        sev = "HIGH" if trunc_limit <= 512 else "MEDIUM"
                     else:
-                        limit = None
                         sev = "MEDIUM"
 
                     findings.append(self._make_finding(
@@ -116,7 +116,7 @@ class JavaScriptLimitDetector:
                         file_path=file.relative_path,
                         line_number=line_number,
                         line_text=line.strip(),
-                        current_limit=limit,
+                        current_limit=trunc_limit,
                         limit_unit="chars/bytes",
                         severity=sev,
                         suggestion="Do not truncate signatures, keys, or tokens. Decode and validate complete cryptographic material."

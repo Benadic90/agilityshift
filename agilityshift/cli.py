@@ -115,34 +115,34 @@ def scan(
         ftable.add_column("Ratio")
         ftable.add_column("Code")
         
-        for f in findings:
-            sev_color = "bold red" if f.severity == "CRITICAL" else "red" if f.severity == "HIGH" else "yellow" if f.severity == "MEDIUM" else "cyan"
-            lim_str = f"{f.current_limit} {f.limit_unit}" if f.current_limit is not None else "N/A"
-            req_str = str(f.required_size) if f.required_size is not None else "N/A"
-            ratio_str = f"{f.overflow_ratio}x" if f.overflow_ratio is not None else "N/A"
+        for finding in findings:
+            sev_color = "bold red" if finding.severity == "CRITICAL" else "red" if finding.severity == "HIGH" else "yellow" if finding.severity == "MEDIUM" else "cyan"
+            lim_str = f"{finding.current_limit} {finding.limit_unit}" if finding.current_limit is not None else "N/A"
+            req_str = str(finding.required_size) if finding.required_size is not None else "N/A"
+            ratio_str = f"{finding.overflow_ratio}x" if finding.overflow_ratio is not None else "N/A"
             
             ftable.add_row(
-                f"[{sev_color}]{f.severity}[/{sev_color}]",
-                f.finding_type,
-                f.rule_id,
-                f.file_path,
-                str(f.line_number),
+                f"[{sev_color}]{finding.severity}[/{sev_color}]",
+                finding.finding_type,
+                finding.rule_id,
+                finding.file_path,
+                str(finding.line_number),
                 lim_str,
                 req_str,
                 ratio_str,
-                f.line_text
+                finding.line_text
             )
         console.print(ftable)
         
         if show_fixes:
             console.print("\n[bold]Suggested Fixes[/bold]\n")
-            for f in findings:
-                sev_color = "bold red" if f.severity == "CRITICAL" else "red" if f.severity == "HIGH" else "yellow" if f.severity == "MEDIUM" else "cyan"
-                console.print(f"[{sev_color}][{f.severity}][/{sev_color}] {f.file_path}:{f.line_number}")
-                console.print(f"Rule: {f.rule_id}")
-                console.print(f"Fix: {f.fix_title}")
-                console.print(f"Suggestion: {f.suggested_fix}")
-                mr = "yes" if f.manual_review_required else "no"
+            for finding in findings:
+                sev_color = "bold red" if finding.severity == "CRITICAL" else "red" if finding.severity == "HIGH" else "yellow" if finding.severity == "MEDIUM" else "cyan"
+                console.print(f"[{sev_color}][{finding.severity}][/{sev_color}] {finding.file_path}:{finding.line_number}")
+                console.print(f"Rule: {finding.rule_id}")
+                console.print(f"Fix: {finding.fix_title}")
+                console.print(f"Suggestion: {finding.suggested_fix}")
+                mr = "yes" if finding.manual_review_required else "no"
                 console.print(f"Manual review required: {mr}\n")
 
     console.print()
