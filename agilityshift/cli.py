@@ -20,7 +20,7 @@ def scan(
     target_profile: str = typer.Option("ML-DSA-65", "--target-profile", help="Target PQC profile"),
     list_profiles: bool = typer.Option(False, "--list-profiles", help="List available PQC profiles"),
     show_fixes: bool = typer.Option(True, "--show-fixes/--no-show-fixes", help="Show fix suggestions"),
-    report: str = typer.Option("none", "--report", help="Report format to generate (none, json, html, sarif, all)"),
+    report: str = typer.Option("none", "--report", help="Report format to generate (none, json, html, sarif, cbom, all)"),
     output_dir: Path | None = typer.Option(None, "--output-dir", help="Directory to save reports in"),
     fail_on: str = typer.Option("none", "--fail-on", help="CI/CD failure threshold (none, low, medium, high, critical)"),
     explain: bool = typer.Option(True, "--explain/--no-explain", help="Generate AI/template explanations for findings"),
@@ -202,6 +202,13 @@ def scan(
         out_path = out_dir / "agilityshift-report.sarif"
         s_writer.write_report(out_path, findings)
         report_files.append("agilityshift-report.sarif")
+
+    if report in ["cbom", "all"]:
+        from agilityshift.reports.cbom_report import CBOMReportWriter
+        c_writer = CBOMReportWriter()
+        out_path = out_dir / "agilityshift-cbom.json"
+        c_writer.write_report(out_path, path, profile, findings)
+        report_files.append("agilityshift-cbom.json")
 
     if report_files:
         console.print("\n[bold]Reports generated:[/bold]")

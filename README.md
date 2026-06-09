@@ -83,6 +83,23 @@ Generated file:
 Explain:
 SARIF export helps integrate AgilityShift findings into DevSecOps workflows such as GitHub code scanning.
 
+## Phase 14: CBOM-style Crypto Inventory Export
+
+AgilityShift can generate an experimental CBOM-style crypto inventory to help teams understand cryptographic assets affected by PQC migration.
+
+Commands:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api --report cbom
+
+agilityshift scan ./examples/vulnerable-bank-api --report all
+```
+
+Generated file:
+`agilityshift-cbom.json`
+
+Explain:
+This export is CycloneDX-inspired and designed for PQC migration readiness. It is not yet a complete official CycloneDX CBOM implementation.
+
 ### 4. CI/CD Failure Gate
 Block deployments if CRITICAL issues are discovered:
 ```bash
