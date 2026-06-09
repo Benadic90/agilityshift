@@ -50,3 +50,17 @@ class PQCProfile:
     level: int
     type: str
     description: str
+
+@dataclass
+class ReportSummary:
+    target_path: str
+    target_profile: str
+    required_size: int
+    files_scanned: int
+    skipped_files: int
+    total_findings: int
+    critical_count: int
+    high_count: int
+    medium_count: int
+    low_count: int
+    readiness_score: int

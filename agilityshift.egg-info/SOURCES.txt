@@ -37,5 +37,6 @@ tests/test_api_schema_detector.py
 tests/test_db_schema_detector.py
 tests/test_limit_detector.py
 tests/test_repo_loader.py
+tests/test_reports.py
 tests/test_risk_scorer.py
 tests/test_suggestions.py

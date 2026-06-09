@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgilityShift PQC Migration Readiness Report</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #3b82f6;
+            
+            --critical: #ef4444;
+            --critical-bg: rgba(239, 68, 68, 0.1);
+            --high: #f59e0b;
+            --high-bg: rgba(245, 158, 11, 0.1);
+            --medium: #8b5cf6;
+            --medium-bg: rgba(139, 92, 246, 0.1);
+            --low: #10b981;
+            --low-bg: rgba(16, 185, 129, 0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0 0 0.5rem 0;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .stat-card .label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        
+        .stat-card .value.readiness {
+            color: {% if summary.readiness_score < 50 %}var(--critical){% elif summary.readiness_score < 80 %}var(--high){% else %}var(--low){% endif %};
+        }
+
+        .warning-card {
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+            border-left: 4px solid;
+        }
+
+        .warning-card.critical {
+            background: var(--critical-bg);
+            border-color: var(--critical);
+        }
+        .warning-card.critical h2 { color: var(--critical); }
+
+        .warning-card.safe {
+            background: var(--low-bg);
+            border-color: var(--low);
+        }
+        .warning-card.safe h2 { color: var(--low); }
+
+        .warning-card h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+        }
+
+        .warning-card p {
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        .severity-breakdown {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .sev-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sev-badge.critical { background: var(--critical-bg); color: var(--critical); border: 1px solid var(--critical); }
+        .sev-badge.high { background: var(--high-bg); color: var(--high); border: 1px solid var(--high); }
+        .sev-badge.medium { background: var(--medium-bg); color: var(--medium); border: 1px solid var(--medium); }
+        .sev-badge.low { background: var(--low-bg); color: var(--low); border: 1px solid var(--low); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 3rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(0,0,0,0.2);
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        td.code {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .finding-sev {
+            font-weight: bold;
+        }
+        .finding-sev.CRITICAL { color: var(--critical); }
+        .finding-sev.HIGH { color: var(--high); }
+        .finding-sev.MEDIUM { color: var(--medium); }
+        .finding-sev.LOW { color: var(--low); }
+
+        .suggestions {
+            margin-bottom: 3rem;
+        }
+
+        .suggestion-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .suggestion-card h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .code-block {
+            background: #000;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+        }
+
+        .badge {
+            background: #334155;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AgilityShift PQC Migration Readiness Report</h1>
+            <p class="subtitle">Local-first scan report showing code, database, and API limits that may break during post-quantum cryptography migration.</p>
+        </header>
+
+        <div class="hero-stats">
+            <div class="stat-card">
+                <div class="label">Target Path</div>
+                <div class="value" style="font-size: 1.2rem; word-break: break-all;">{{ summary.target_path }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Target PQC Profile</div>
+                <div class="value">{{ summary.target_profile }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Required Signature Size</div>
+                <div class="value">{{ summary.required_size }} bytes</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">PQC Readiness Score</div>
+                <div class="value readiness">{{ summary.readiness_score }}/100</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Files Scanned</div>
+                <div class="value">{{ summary.files_scanned }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Total Findings</div>
+                <div class="value">{{ summary.total_findings }}</div>
+            </div>
+        </div>
+
+        {% if summary.critical_count > 0 %}
+        <div class="warning-card critical">
+            <h2>Production Breakage Risk Detected</h2>
+            <p>Critical PQC migration breakage risks were found. These issues should be reviewed before migration or deployment.</p>
+        </div>
+        {% else %}
+        <div class="warning-card safe">
+            <h2>No Critical PQC Breakage Detected</h2>
+            <p>No critical size constraints blocking the target PQC profile were found in the supported files.</p>
+        </div>
+        {% endif %}
+
+        <div class="severity-breakdown">
+            <div class="sev-badge critical">CRITICAL: {{ summary.critical_count }}</div>
+            <div class="sev-badge high">HIGH: {{ summary.high_count }}</div>
+            <div class="sev-badge medium">MEDIUM: {{ summary.medium_count }}</div>
+            <div class="sev-badge low">LOW: {{ summary.low_count }}</div>
+        </div>
+
+        <h2>Findings Matrix</h2>
+        {% if findings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Severity</th>
+                    <th>Type</th>
+                    <th>Rule</th>
+                    <th>File</th>
+                    <th>Line</th>
+                    <th>Current Limit</th>
+                    <th>Required Size</th>
+                    <th>Overflow Ratio</th>
+                    <th>Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in findings %}
+                <tr>
+                    <td class="finding-sev {{ f.severity }}">{{ f.severity }}</td>
+                    <td>{{ f.finding_type }}</td>
+                    <td><span class="badge">{{ f.rule_id }}</span></td>
+                    <td>{{ f.file_path }}</td>
+                    <td>{{ f.line_number }}</td>
+                    <td>{% if f.current_limit %}{{ f.current_limit }} {{ f.limit_unit }}{% else %}N/A{% endif %}</td>
+                    <td>{% if f.required_size %}{{ f.required_size }}{% else %}N/A{% endif %}</td>
+                    <td>{% if f.overflow_ratio %}{{ f.overflow_ratio }}x{% else %}N/A{% endif %}</td>
+                    <td class="code">{{ f.line_text }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h2>Suggested Fixes</h2>
+        <div class="suggestions">
+            {% for f in findings %}
+            <div class="suggestion-card">
+                <div class="suggestion-header">
+                    <span class="sev-badge {{ f.severity | lower }}">{{ f.severity }}</span>
+                    <span><strong>{{ f.file_path }}:{{ f.line_number }}</strong></span>
+                    <span class="badge">{{ f.rule_id }}</span>
+                </div>
+                <h3>{{ f.fix_title }}</h3>
+                <p>{{ f.fix_description }}</p>
+                <p><strong>Suggested Fix:</strong> {{ f.suggested_fix }}</p>
+                {% if f.safe_example and f.safe_example != "None" %}
+                <div class="code-block">
+<pre style="margin:0;">{{ f.safe_example }}</pre>
+                </div>
+                {% endif %}
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <span class="badge">Manual Review Required: {% if f.manual_review_required %}YES{% else %}NO{% endif %}</span>
+                    {% if f.fix_confidence %}
+                    <span class="badge">Confidence: {{ f.fix_confidence }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No findings to display.</p>
+        {% endif %}
+
+        <footer>
+            Generated by AgilityShift — Existing tools tell you where crypto is. AgilityShift tells you where post-quantum migration will break your code.
+        </footer>
+    </div>
+</body>
+</html>

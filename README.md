@@ -102,3 +102,25 @@ agilityshift scan ./examples/vulnerable-bank-api --show-fixes
 
 AgilityShift does not auto-patch production code. It generates reviewable suggestions so developers and security teams can safely plan PQC migration changes.
 
+## Phase 8: JSON + HTML Reports
+
+Current report support:
+- JSON report for tools and automation
+- HTML report for security teams, judges, and developers
+- Summary cards
+- Severity breakdown
+- PQC readiness score
+- Exact file-line findings
+- Suggested fixes
+
+Example commands:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api --report json
+agilityshift scan ./examples/vulnerable-bank-api --report html
+agilityshift scan ./examples/vulnerable-bank-api --report all
+```
+
+Expected generated files:
+- `agilityshift-report.json`
+- `agilityshift-report.html`
+

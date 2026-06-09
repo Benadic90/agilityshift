@@ -19,7 +19,9 @@ def scan(
     path: Path = typer.Argument(None, help="Path to repository to scan"),
     target_profile: str = typer.Option("ML-DSA-65", "--target-profile", help="Target PQC profile"),
     list_profiles: bool = typer.Option(False, "--list-profiles", help="List available PQC profiles"),
-    show_fixes: bool = typer.Option(True, "--show-fixes/--no-show-fixes", help="Show fix suggestions")
+    show_fixes: bool = typer.Option(True, "--show-fixes/--no-show-fixes", help="Show fix suggestions"),
+    report: str = typer.Option("none", "--report", help="Report format to generate (none, json, html, all)"),
+    output_dir: Path | None = typer.Option(None, "--output-dir", help="Directory to save reports in")
 ):
     """
     AgilityShift local-first PQC migration breakage scanner.
@@ -145,10 +147,36 @@ def scan(
                 mr = "yes" if finding.manual_review_required else "no"
                 console.print(f"Manual review required: {mr}\n")
 
+    report_files = []
+    out_dir = Path(output_dir) if output_dir else Path.cwd()
+    
+    if report in ["json", "all"]:
+        from agilityshift.reports.json_report import JSONReportWriter
+        j_writer = JSONReportWriter()
+        out_path = out_dir / "agilityshift-report.json"
+        j_writer.write_report(
+            out_path, path, profile, summary, findings, readiness, sev_summary
+        )
+        report_files.append("agilityshift-report.json")
+        
+    if report in ["html", "all"]:
+        from agilityshift.reports.html_report import HTMLReportWriter
+        h_writer = HTMLReportWriter()
+        out_path = out_dir / "agilityshift-report.html"
+        h_writer.write_report(
+            out_path, path, profile, summary, findings, readiness, sev_summary
+        )
+        report_files.append("agilityshift-report.html")
+
+    if report_files:
+        console.print("\n[bold]Reports generated:[/bold]")
+        for report_file in report_files:
+            console.print(f"- {report_file}")
+
     console.print()
-    console.print("Phase 7 complete:")
-    console.print("Suggested fix engine is active.")
-    console.print("Reports will be added in Phase 8.")
+    console.print("Phase 8 complete:")
+    console.print("JSON and HTML report generation are active.")
+    console.print("CI/CD failure gate will be added in Phase 9.")
 
 if __name__ == "__main__":
     app()
