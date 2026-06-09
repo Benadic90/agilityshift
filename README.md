@@ -58,10 +58,30 @@ Run the basic scan:
 agilityshift scan ./examples/vulnerable-bank-api
 ```
 
-### 3. Generate Reports & Explain
+### 3. Generate ReportDisable explanations:
 ```bash
-agilityshift scan ./examples/vulnerable-bank-api --report all --explain
+agilityshift scan ./examples/vulnerable-bank-api --no-explain
 ```
+
+Explain:
+For enterprise safety, AgilityShift uses template-based explanations by default. Future versions may support local LLMs such as Ollama, but the core scanner does not require internet or cloud AI.
+
+## Phase 13: SARIF Export
+
+AgilityShift can export findings in SARIF format for code scanning workflows.
+
+Commands:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api --report sarif
+
+agilityshift scan ./examples/vulnerable-bank-api --report all
+```
+
+Generated file:
+`agilityshift-report.sarif`
+
+Explain:
+SARIF export helps integrate AgilityShift findings into DevSecOps workflows such as GitHub code scanning.
 
 ### 4. CI/CD Failure Gate
 Block deployments if CRITICAL issues are discovered:

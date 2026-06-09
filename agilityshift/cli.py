@@ -20,7 +20,7 @@ def scan(
     target_profile: str = typer.Option("ML-DSA-65", "--target-profile", help="Target PQC profile"),
     list_profiles: bool = typer.Option(False, "--list-profiles", help="List available PQC profiles"),
     show_fixes: bool = typer.Option(True, "--show-fixes/--no-show-fixes", help="Show fix suggestions"),
-    report: str = typer.Option("none", "--report", help="Report format to generate (none, json, html, all)"),
+    report: str = typer.Option("none", "--report", help="Report format to generate (none, json, html, sarif, all)"),
     output_dir: Path | None = typer.Option(None, "--output-dir", help="Directory to save reports in"),
     fail_on: str = typer.Option("none", "--fail-on", help="CI/CD failure threshold (none, low, medium, high, critical)"),
     explain: bool = typer.Option(True, "--explain/--no-explain", help="Generate AI/template explanations for findings"),
@@ -195,6 +195,13 @@ def scan(
             out_path, path, profile, summary, findings, readiness, sev_summary
         )
         report_files.append("agilityshift-report.html")
+
+    if report in ["sarif", "all"]:
+        from agilityshift.reports.sarif_report import SARIFReportWriter
+        s_writer = SARIFReportWriter()
+        out_path = out_dir / "agilityshift-report.sarif"
+        s_writer.write_report(out_path, findings)
+        report_files.append("agilityshift-report.sarif")
 
     if report_files:
         console.print("\n[bold]Reports generated:[/bold]")
