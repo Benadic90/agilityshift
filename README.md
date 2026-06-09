@@ -86,3 +86,19 @@ Example result:
 - Overflow ratio: 12.93x
 - Severity: CRITICAL
 
+## Phase 7: Suggested Fix Engine
+
+Current features:
+- Safe fix suggestions for code limits
+- Safe fix suggestions for SQL storage limits
+- Safe fix suggestions for API maxLength limits
+- Manual review required for all fixes
+- No automatic production patching
+
+Example command:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api --show-fixes
+```
+
+AgilityShift does not auto-patch production code. It generates reviewable suggestions so developers and security teams can safely plan PQC migration changes.
+

@@ -29,6 +29,12 @@ class Finding:
     overflow_ratio: float | None = None
     readiness_penalty: int = 0
     risk_message: str | None = None
+    fix_title: str | None = None
+    fix_description: str | None = None
+    suggested_fix: str | None = None
+    safe_example: str | None = None
+    manual_review_required: bool = True
+    fix_confidence: str | None = None
 
 @dataclass
 class ScanSummary:

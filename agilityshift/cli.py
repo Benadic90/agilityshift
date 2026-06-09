@@ -5,6 +5,7 @@ from rich.table import Table
 
 from agilityshift.pqc.profile_loader import PQCProfileLoader
 from agilityshift.risk.scorer import RiskScorer
+from agilityshift.fixes.suggestions import SuggestionEngine
 
 app = typer.Typer(add_completion=False)
 console = Console()
@@ -17,7 +18,8 @@ def callback():
 def scan(
     path: Path = typer.Argument(None, help="Path to repository to scan"),
     target_profile: str = typer.Option("ML-DSA-65", "--target-profile", help="Target PQC profile"),
-    list_profiles: bool = typer.Option(False, "--list-profiles", help="List available PQC profiles")
+    list_profiles: bool = typer.Option(False, "--list-profiles", help="List available PQC profiles"),
+    show_fixes: bool = typer.Option(True, "--show-fixes/--no-show-fixes", help="Show fix suggestions")
 ):
     """
     AgilityShift local-first PQC migration breakage scanner.
@@ -81,6 +83,9 @@ def scan(
 
     scorer = RiskScorer(profile)
     findings = scorer.score_findings(findings)
+    
+    suggester = SuggestionEngine()
+    findings = suggester.suggest_for_findings(findings)
 
     console.print(f"Findings found: {len(findings)}\n")
 
@@ -128,11 +133,22 @@ def scan(
                 f.line_text
             )
         console.print(ftable)
+        
+        if show_fixes:
+            console.print("\n[bold]Suggested Fixes[/bold]\n")
+            for f in findings:
+                sev_color = "bold red" if f.severity == "CRITICAL" else "red" if f.severity == "HIGH" else "yellow" if f.severity == "MEDIUM" else "cyan"
+                console.print(f"[{sev_color}][{f.severity}][/{sev_color}] {f.file_path}:{f.line_number}")
+                console.print(f"Rule: {f.rule_id}")
+                console.print(f"Fix: {f.fix_title}")
+                console.print(f"Suggestion: {f.suggested_fix}")
+                mr = "yes" if f.manual_review_required else "no"
+                console.print(f"Manual review required: {mr}\n")
 
     console.print()
-    console.print("Phase 6 complete:")
-    console.print("PQC profile engine and risk scoring are active.")
-    console.print("Reports will be added in Phase 7/8.")
+    console.print("Phase 7 complete:")
+    console.print("Suggested fix engine is active.")
+    console.print("Reports will be added in Phase 8.")
 
 if __name__ == "__main__":
     app()
