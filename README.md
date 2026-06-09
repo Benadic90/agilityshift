@@ -1,331 +1,108 @@
 # AgilityShift
 
-AgilityShift is a local-first Post-Quantum Cryptography migration breakage scanner. It scans code, database schemas, and API contracts to find exact file-line limits that may break during PQC migration.
+Find where post-quantum cryptography migration will break your code before production fails.
 
-> “Existing tools tell you where crypto is. AgilityShift tells you where post-quantum migration will break your code.”
+> "Existing tools tell you where crypto is. AgilityShift tells you where post-quantum migration will break your code."
 
-## MVP Goal
-Provide a minimal viable scanner that identifies hardcoded limitations (like `maxLength: 256` or `VARCHAR(256)`) that might break when migrating to PQC algorithms with larger keys and signatures.
+## What is AgilityShift?
+AgilityShift is a local-first Post-Quantum Cryptography (PQC) migration breakage scanner. It deeply analyzes source code, database schemas, and API contracts to find hardcoded size limits that will shatter when you swap old cryptography for large post-quantum algorithms.
 
-## Demo
-Run the scanner on the vulnerable demo bank app:
+## Why this matters
+The Problem: Post-quantum migration is coming. As organizations prepare for quantum-safe cryptography, they must transition to algorithms like ML-DSA. However, legacy applications have hidden size assumptions—such as `Buffer.alloc(256)`, `VARCHAR(256)`, or `maxLength: 256`—that implicitly expect tiny RSA or ECDSA artifacts.
+The Solution: AgilityShift acts as a pre-migration safety scanner. It highlights exactly where your architecture will silently break, calculates overflow ratios against formal PQC profiles, and suggests remediation strategies.
+
+## Demo Story
+Imagine a vulnerable banking API (`examples/vulnerable-bank-api`). It works fine today, but uses hardcoded 256-byte limits for its signatures. Running AgilityShift uncovers 13 distinct breakage points across the frontend JS, the database SQL, and the OpenAPI contract—generating an interactive security dashboard and actionable HTML reports to guide the migration.
+
+## MVP Status
+✅ Local CLI scanner
+✅ JS/TS detector
+✅ SQL schema detector
+✅ OpenAPI/YAML/JSON detector
+✅ PQC profile and risk scoring
+✅ Suggested fix engine
+✅ Template security explanation
+✅ JSON and HTML reports
+✅ CI/CD failure gate
+✅ Interactive dashboard
+
+## Features
+✅ **Local CLI scanner**: Offline first, no source code upload.
+✅ **JS/TS detector**: Catches `Buffer.alloc` and string length assumptions.
+✅ **SQL schema detector**: Identifies constrictive `VARCHAR`/`BLOB` fields.
+✅ **OpenAPI/YAML/JSON detector**: Detects constrictive `maxLength` bounds.
+✅ **PQC profile and risk scoring**: Calculates precise overflow ratios (e.g. 12.93x) against targets like `ML-DSA-65`.
+✅ **Suggested fix engine**: Provides remediation code patterns.
+✅ **Template security explanation**: Translates obscure constraints into developer guidance and manager summaries.
+✅ **JSON and HTML reports**: Robust enterprise output tracking.
+✅ **CI/CD failure gate**: Block deployments before risky bounds hit production.
+✅ **Interactive dashboard**: React/Tailwind visual triage.
+
+## Tech Stack
+- **Core Engine:** Python 3.11, Typer (CLI), Rich (UI), Jinja2 (HTML Generation).
+- **Dashboard:** React, Vite, Tailwind CSS.
+
+## Architecture
+See [docs/architecture.md](docs/architecture.md) for full pipeline flow.
+
+## Quick Start
+
+### 1. Install Scanner
 ```bash
-agilityshift scan ./examples/vulnerable-bank-api --report html --fail-on critical
+pip install -e .
 ```
 
-## Current Status
-Phase 0 and Phase 1 setup.
-Phase 2 scanner foundation is active.
-
-## Phase 3: JavaScript/TypeScript Fixed-Limit Detector
-
-Current detector supports:
-- `Buffer.alloc(number)`
-- `Buffer.allocUnsafe(number)`
-- crypto-like length checks
-- crypto-like truncation
-- crypto-size constants
-
-Example:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api
-```
-
-## Phase 4: SQL Database Schema Scanner
-
-Current SQL detector supports:
-- `signature VARCHAR(number)`
-- `public_key VARCHAR(number)`
-- `certificate VARCHAR(number)`
-- `jwt_token VARCHAR(number)`
-- `attestation_proof VARCHAR(number)`
-- crypto-related `CHAR` / `VARCHAR` / `NVARCHAR` / `VARBINARY` limits
-
-Example:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api
-```
-
-This helps detect database storage limits that may break when cryptographic signatures, keys, certificates, or proofs become larger during post-quantum migration.
-
-## Phase 5: OpenAPI / YAML / JSON API Contract Scanner
-
-Current API detector supports:
-- `signature maxLength`
-- `publicKey maxLength`
-- `certificate maxLength`
-- `token/jwt maxLength`
-- `proof/attestation maxLength`
-- basic small request body limits
-
-Example:
+### 2. Run Scanner
+Run the basic scan:
 ```bash
 agilityshift scan ./examples/vulnerable-bank-api
 ```
 
-This helps detect API validation limits that may reject larger post-quantum signatures, keys, certificates, or proofs during migration.
-
-## Phase 6: PQC Profile + Risk Scoring
-
-Current features:
-- Target PQC profile support
-- Default profile: `ML-DSA-65`
-- Required signature size comparison
-- Overflow ratio calculation
-- Severity scoring
-- PQC migration readiness score
-
-Example:
+### 3. Generate Reports & Explain
 ```bash
-agilityshift scan ./examples/vulnerable-bank-api --target-profile ML-DSA-65
+agilityshift scan ./examples/vulnerable-bank-api --report all --explain
 ```
 
-Example result:
-- Current limit: 256 bytes
-- Required size: 3309 bytes
-- Overflow ratio: 12.93x
-- Severity: CRITICAL
-
-## Phase 7: Suggested Fix Engine
-
-Current features:
-- Safe fix suggestions for code limits
-- Safe fix suggestions for SQL storage limits
-- Safe fix suggestions for API maxLength limits
-- Manual review required for all fixes
-- No automatic production patching
-
-Example command:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --show-fixes
-```
-
-AgilityShift does not auto-patch production code. It generates reviewable suggestions so developers and security teams can safely plan PQC migration changes.
-
-## Phase 8: JSON + HTML Reports
-
-Current report support:
-- JSON report for tools and automation
-- HTML report for security teams, judges, and developers
-- Summary cards
-- Severity breakdown
-- PQC readiness score
-- Exact file-line findings
-- Suggested fixes
-
-Example commands:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --report json
-agilityshift scan ./examples/vulnerable-bank-api --report html
-agilityshift scan ./examples/vulnerable-bank-api --report all
-```
-
-Expected generated files:
-- `agilityshift-report.json`
-- `agilityshift-report.html`
-
-## Phase 9: CI/CD Failure Gate
-
-Current CI/CD features:
-- `--fail-on` threshold
-- Supported thresholds: `none`, `low`, `medium`, `high`, `critical`
-- Exit code 1 when matching findings exist
-- GitHub Actions workflow
-- Reports still generate before failure
-
-Example:
+### 4. CI/CD Failure Gate
+Block deployments if CRITICAL issues are discovered:
 ```bash
 agilityshift scan ./examples/vulnerable-bank-api --report all --fail-on critical
 ```
 
-Expected result:
-# AgilityShift
-
-AgilityShift is a local-first Post-Quantum Cryptography migration breakage scanner. It scans code, database schemas, and API contracts to find exact file-line limits that may break during PQC migration.
-
-> “Existing tools tell you where crypto is. AgilityShift tells you where post-quantum migration will break your code.”
-
-## MVP Goal
-Provide a minimal viable scanner that identifies hardcoded limitations (like `maxLength: 256` or `VARCHAR(256)`) that might break when migrating to PQC algorithms with larger keys and signatures.
-
-## Demo
-Run the scanner on the vulnerable demo bank app:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --report html --fail-on critical
-```
-
-## Current Status
-Phase 0 and Phase 1 setup.
-Phase 2 scanner foundation is active.
-
-## Phase 3: JavaScript/TypeScript Fixed-Limit Detector
-
-Current detector supports:
-- `Buffer.alloc(number)`
-- `Buffer.allocUnsafe(number)`
-- crypto-like length checks
-- crypto-like truncation
-- crypto-size constants
-
-Example:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api
-```
-
-## Phase 4: SQL Database Schema Scanner
-
-Current SQL detector supports:
-- `signature VARCHAR(number)`
-- `public_key VARCHAR(number)`
-- `certificate VARCHAR(number)`
-- `jwt_token VARCHAR(number)`
-- `attestation_proof VARCHAR(number)`
-- crypto-related `CHAR` / `VARCHAR` / `NVARCHAR` / `VARBINARY` limits
-
-Example:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api
-```
-
-This helps detect database storage limits that may break when cryptographic signatures, keys, certificates, or proofs become larger during post-quantum migration.
-
-## Phase 5: OpenAPI / YAML / JSON API Contract Scanner
-
-Current API detector supports:
-- `signature maxLength`
-- `publicKey maxLength`
-- `certificate maxLength`
-- `token/jwt maxLength`
-- `proof/attestation maxLength`
-- basic small request body limits
-
-Example:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api
-```
-
-This helps detect API validation limits that may reject larger post-quantum signatures, keys, certificates, or proofs during migration.
-
-## Phase 6: PQC Profile + Risk Scoring
-
-Current features:
-- Target PQC profile support
-- Default profile: `ML-DSA-65`
-- Required signature size comparison
-- Overflow ratio calculation
-- Severity scoring
-- PQC migration readiness score
-
-Example:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --target-profile ML-DSA-65
-```
-
-Example result:
-- Current limit: 256 bytes
-- Required size: 3309 bytes
-- Overflow ratio: 12.93x
-- Severity: CRITICAL
-
-## Phase 7: Suggested Fix Engine
-
-Current features:
-- Safe fix suggestions for code limits
-- Safe fix suggestions for SQL storage limits
-- Safe fix suggestions for API maxLength limits
-- Manual review required for all fixes
-- No automatic production patching
-
-Example command:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --show-fixes
-```
-
-AgilityShift does not auto-patch production code. It generates reviewable suggestions so developers and security teams can safely plan PQC migration changes.
-
-## Phase 8: JSON + HTML Reports
-
-Current report support:
-- JSON report for tools and automation
-- HTML report for security teams, judges, and developers
-- Summary cards
-- Severity breakdown
-- PQC readiness score
-- Exact file-line findings
-- Suggested fixes
-
-Example commands:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --report json
-agilityshift scan ./examples/vulnerable-bank-api --report html
-agilityshift scan ./examples/vulnerable-bank-api --report all
-```
-
-Expected generated files:
-- `agilityshift-report.json`
-- `agilityshift-report.html`
-
-## Phase 9: CI/CD Failure Gate
-
-Current CI/CD features:
-- `--fail-on` threshold
-- Supported thresholds: `none`, `low`, `medium`, `high`, `critical`
-- Exit code 1 when matching findings exist
-- GitHub Actions workflow
-- Reports still generate before failure
-
-Example:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --report all --fail-on critical
-```
-
-Expected result:
-```text
-CI/CD Gate Result: FAILED
-Deployment blocked before production failure.
-```
-This makes AgilityShift useful in CI/CD because teams can block unsafe PQC migration changes before production deployment.
-
-### GitHub Actions
-
-See `.github/workflows/agilityshift.yml` for the standard integration workflow. The demo workflow intentionally fails because the example vulnerable API contains critical findings.
-
-## Phase 10: Interactive Dashboard
-
-Current dashboard supports:
-- PQC readiness score visual
-- Severity breakdown metrics
-- Findings table with searching and severity filtering
-- Finding details panel
-- Interactive suggested fixes and code copying
-- CI/CD gate visual block
-
-Run the local dashboard:
+### 5. Launch Interactive Dashboard
 ```bash
 cd dashboard
 npm install
 npm run dev
 ```
 
-## Phase 11: Template-Based Security Explanation Layer
-
-Current features:
-- Offline explanation generation
-- No cloud AI required
-- Explains why each finding is risky
-- Gives developer guidance
-- Gives manager summary
-- Adds explanations to terminal, JSON report, HTML report, and dashboard
-
-Example:
+### 6. Run Test Suite
 ```bash
-agilityshift scan ./examples/vulnerable-bank-api --explain
+pytest
 ```
 
-Disable explanations:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --no-explain
-```
+## Example Findings
+AgilityShift locates limits like `const sigBuffer = Buffer.alloc(256);` and outputs:
+- **Severity**: CRITICAL
+- **Required Size**: 3309 bytes (`ML-DSA-65`)
+- **Overflow Ratio**: 12.93x
+- **Remediation**: Use dynamic decoding and validate against a configurable PQC policy.
 
-Explain:
-For enterprise safety, AgilityShift uses template-based explanations by default. Future versions may support local LLMs such as Ollama, but the core scanner does not require internet or cloud AI.
+## Security and Privacy Model
+- **Local-first scanning**: Your code never leaves your machine. No cloud API calls are required to scan or evaluate risk.
+- **CI/CD native**: The engine runs inside your private build environment.
+
+## Limitations
+- Uses advanced pattern-based detection which may yield false positives.
+- Supports a limited subset of languages (JS/TS, SQL schemas, API YAML).
+
+## Future Roadmap
+- AST parsing via Tree-sitter for complex data-flow tracing.
+- Native SARIF and CBOM (Cryptography Bill of Materials) export.
+- Local LLM explanation engine via Ollama.
+
+## Hackathon Demo Script
+Check out [demo_script.md](demo_script.md) for our 4-minute presentation guide.
+
+## License
+MIT License.

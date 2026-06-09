@@ -1,10 +1,60 @@
 # Architecture
 
-**CLI Scanner** → **Detectors** → **PQC Profile** → **Risk Scoring** → **Reports** → **CI Fail**
+**Input:**
+Developer repository
 
-1. **CLI Scanner**: The Typer CLI entry point starts the scan.
-2. **Detectors**: Modules analyze code, DB schemas, and OpenAPI contracts to find hardcoded limits.
-3. **PQC Profile**: JSON definitions of PQC algorithms (like ML-DSA) provide the necessary sizes (e.g., 2420 bytes for ML-DSA-44).
-4. **Risk Scoring**: Identifies the gap between current hardcoded limits and PQC requirements, assigning a risk score.
-5. **Reports**: Generates JSON, HTML, or SARIF output.
-6. **CI Fail**: An exit policy determines whether to fail the CI/CD pipeline based on the risk score (e.g., critical).
+**Pipeline:**
+`RepoLoader` (Filters and indexes supported repository files)
+↓
+`JavaScript detector` (Analyzes JS/TS AST-lite patterns for Buffer allocs and length constraints)
+`SQL detector` (Analyzes SQL DDL for VARCHAR/BLOB byte constraints on crypto columns)
+`API schema detector` (Analyzes OpenAPI YAML/JSON for maxLength bounds)
+↓
+`PQC profile engine` (Injects required byte bounds based on target, e.g. ML-DSA)
+↓
+`Risk scoring engine` (Calculates severity and overall readiness penalty)
+↓
+`Suggested fix engine` (Attaches code remediation templates)
+↓
+`Template explanation engine` (Contextualizes the breach into human-readable guidance)
+↓
+`Reports` (Generates JSON and HTML artifacts)
+`Dashboard` (Visualizes the data locally)
+`CI/CD gate` (Returns sys exits to block deployments)
+
+```text
++-----------------------+
+|  Developer Repo (FS)  |
++-----------+-----------+
+            |
+            v
+     +------+------+
+     | RepoLoader  |
+     +------+------+
+            |
+    +-------+-------+
+    |   Detectors   |
+    | (JS, SQL, API)|
+    +-------+-------+
+            |
+   +--------+--------+
+   | PQC Profile Eng |
+   +--------+--------+
+            |
+   +--------+--------+
+   |  Risk Scoring   |
+   +--------+--------+
+            |
+   +--------+--------+
+   | Fix & Explainer |
+   +--------+--------+
+            |
+  +---------+---------+
+  |                   |
+  v                   v
+Reports             CI Gate
+ (HTML/JSON)         (Exit 1)
+  |
+  v
+Dashboard
+```
