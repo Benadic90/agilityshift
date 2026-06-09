@@ -22,7 +22,9 @@ def scan(
     show_fixes: bool = typer.Option(True, "--show-fixes/--no-show-fixes", help="Show fix suggestions"),
     report: str = typer.Option("none", "--report", help="Report format to generate (none, json, html, all)"),
     output_dir: Path | None = typer.Option(None, "--output-dir", help="Directory to save reports in"),
-    fail_on: str = typer.Option("none", "--fail-on", help="CI/CD failure threshold (none, low, medium, high, critical)")
+    fail_on: str = typer.Option("none", "--fail-on", help="CI/CD failure threshold (none, low, medium, high, critical)"),
+    explain: bool = typer.Option(True, "--explain/--no-explain", help="Generate AI/template explanations for findings"),
+    explain_mode: str = typer.Option("template", "--explain-mode", help="Explanation engine to use (template, none)")
 ):
     """
     AgilityShift local-first PQC migration breakage scanner.
@@ -97,6 +99,13 @@ def scan(
     suggester = SuggestionEngine()
     findings = suggester.suggest_for_findings(findings)
 
+    if explain and explain_mode in ["template", "none"]:
+        from agilityshift.ai.explain_template import TemplateExplanationEngine
+        from agilityshift.ai.explain_llm import LLMExplanationEngine
+        
+        engine = LLMExplanationEngine(provider=explain_mode) if explain_mode == "none" else TemplateExplanationEngine()
+        findings = engine.explain_findings(findings)
+
     console.print(f"Findings found: {len(findings)}\n")
 
     if not findings:
@@ -156,6 +165,15 @@ def scan(
                 console.print(f"Suggestion: {finding.suggested_fix}")
                 mr = "yes" if finding.manual_review_required else "no"
                 console.print(f"Manual review required: {mr}\n")
+                
+        if explain:
+            console.print("\n[bold]Explanations[/bold]\n")
+            for finding in findings:
+                if finding.explanation:
+                    sev_color = "bold red" if finding.severity == "CRITICAL" else "red" if finding.severity == "HIGH" else "yellow" if finding.severity == "MEDIUM" else "cyan"
+                    console.print(f"[{sev_color}][{finding.severity}][/{sev_color}] {finding.file_path}:{finding.line_number}")
+                    console.print(finding.explanation)
+                    console.print(f"Manager summary: {finding.manager_summary}\n")
 
     report_files = []
     out_dir = Path(output_dir) if output_dir else Path.cwd()
@@ -184,6 +202,9 @@ def scan(
             console.print(f"- {report_file}")
 
     console.print()
+    console.print("Phase 11 complete:")
+    console.print("Template-based AI explanation layer is active.")
+    console.print("Final demo polish will be added in Phase 12.")
     
     # Process CI/CD exit policy at the very end
     if fail_on != "none":

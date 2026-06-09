@@ -62,6 +62,31 @@ function FindingDetail({ finding }) {
         )}
       </div>
 
+      <div className="mt-4 pt-4 border-t border-border">
+        {finding.explanation ? (
+          <>
+            <h3 className="text-white font-medium mb-3">Security Explanation</h3>
+            <div className="bg-slate-800/50 p-3 rounded border border-slate-800 mb-4 text-sm text-slate-300">
+              {finding.explanation}
+            </div>
+
+            <h4 className="text-xs text-slate-500 uppercase mb-1">Developer Guidance</h4>
+            <p className="text-sm text-slate-300 mb-4">{finding.developer_guidance}</p>
+
+            <h4 className="text-xs text-slate-500 uppercase mb-1">Manager Summary</h4>
+            <p className="text-sm text-slate-300 mb-4">{finding.manager_summary}</p>
+
+            <div className="inline-block px-2 py-1 bg-slate-900 border border-slate-700 rounded text-xs text-slate-500 mb-2">
+              Source: {finding.explanation_source}
+            </div>
+          </>
+        ) : (
+          <div className="text-slate-500 italic text-sm py-2">
+            No explanation generated for this finding.
+          </div>
+        )}
+      </div>
+
       {finding.suggested_fix && (
         <div className="mt-4 pt-4 border-t border-border">
           <h3 className="text-white font-medium mb-3">Remediation</h3>

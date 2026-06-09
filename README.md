@@ -306,3 +306,26 @@ cd dashboard
 npm install
 npm run dev
 ```
+
+## Phase 11: Template-Based Security Explanation Layer
+
+Current features:
+- Offline explanation generation
+- No cloud AI required
+- Explains why each finding is risky
+- Gives developer guidance
+- Gives manager summary
+- Adds explanations to terminal, JSON report, HTML report, and dashboard
+
+Example:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api --explain
+```
+
+Disable explanations:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api --no-explain
+```
+
+Explain:
+For enterprise safety, AgilityShift uses template-based explanations by default. Future versions may support local LLMs such as Ollama, but the core scanner does not require internet or cloud AI.

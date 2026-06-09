@@ -32,6 +32,13 @@ class Finding:
     fix_title: str | None = None
     fix_description: str | None = None
     suggested_fix: str | None = None
+    
+    # AI / Template Explanation Fields
+    explanation: str | None = None
+    developer_guidance: str | None = None
+    manager_summary: str | None = None
+    explanation_source: str | None = None
+    
     safe_example: str | None = None
     manual_review_required: bool = True
     fix_confidence: str | None = None

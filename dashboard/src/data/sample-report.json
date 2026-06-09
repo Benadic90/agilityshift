@@ -37,7 +37,11 @@
       "fix_title": "Use dynamic buffer decoding",
       "suggested_fix": "Replace Buffer.alloc(number) with Buffer.from(signature, 'base64') and validate decoded length.",
       "safe_example": "const sigBuffer = Buffer.from(signature, 'base64');",
-      "manual_review_required": true
+      "manual_review_required": true,
+      "explanation": "This line contains a fixed code-level size assumption for cryptographic material. During migration to ML-DSA-65, cryptographic material may require around 3309 bytes. The current limit is 256 bytes. This is 12.93x larger than the current limit. This can cause verification failure, truncation, or runtime errors.",
+      "developer_guidance": "Remove hardcoded fixed limits. Use dynamic decoding and validate against a configurable PQC policy. Review with the security team.",
+      "manager_summary": "This code path may break during PQC migration because it assumes cryptographic material stays small.",
+      "explanation_source": "template"
     },
     {
       "rule_id": "JS_CRYPTO_LENGTH_LIMIT",
@@ -57,7 +61,11 @@
       "fix_title": "Replace hardcoded crypto length check",
       "suggested_fix": "Move crypto-size limits into a configuration file based on the selected PQC migration profile.",
       "safe_example": "if (signature.length > PQC_CONFIG.MAX_SIGNATURE_SIZE) {",
-      "manual_review_required": true
+      "manual_review_required": true,
+      "explanation": "This line contains a fixed code-level size assumption for cryptographic material. During migration to ML-DSA-65, cryptographic material may require around 3309 chars/bytes. The current limit is 256 chars/bytes. This is 12.93x larger than the current limit. This can cause verification failure, truncation, or runtime errors. Character limits may not equal byte limits depending on encoding, so this should be validated with real payloads.",
+      "developer_guidance": "Remove hardcoded fixed limits. Use dynamic decoding and validate against a configurable PQC policy. Review with the security team.",
+      "manager_summary": "This code path may break during PQC migration because it assumes cryptographic material stays small.",
+      "explanation_source": "template"
     },
     {
       "rule_id": "SQL_CRYPTO_VARCHAR_LIMIT",
@@ -77,7 +85,11 @@
       "fix_title": "Use migration-safe database storage",
       "suggested_fix": "Use TEXT, BYTEA, VARBINARY, BLOB, or increase the column size.",
       "safe_example": "signature TEXT",
-      "manual_review_required": true
+      "manual_review_required": true,
+      "explanation": "This database column may be too small for post-quantum algorithms. During migration to ML-DSA-65, cryptographic material may require around 3309 characters. The current limit is 256 characters. This is 12.93x larger than the current limit. This can cause insert failure, truncation, storage rejection, or data corruption. Character limits may not equal byte limits depending on encoding, so this should be validated with real payloads.",
+      "developer_guidance": "Migrate column to TEXT, BYTEA, VARBINARY, BLOB, or a larger size. Plan database migration carefully, test with PQC-sized payloads, and avoid silent truncation.",
+      "manager_summary": "This database schema may block PQC migration because it stores cryptographic material in a small fixed-size field.",
+      "explanation_source": "template"
     },
     {
       "rule_id": "API_CRYPTO_MAX_LENGTH_LIMIT",

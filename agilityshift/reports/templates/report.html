@@ -347,6 +347,24 @@
                     <span class="badge">Confidence: {{ f.fix_confidence }}</span>
                     {% endif %}
                 </div>
+                {% if f.explanation %}
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <h4 style="margin-bottom: 0.5rem; color: #fff;">Security Explanation</h4>
+                    <div style="background: rgba(30,41,59,0.5); padding: 0.75rem; border-radius: 4px; margin-bottom: 0.75rem;">
+                        {{ f.explanation }}
+                    </div>
+                    
+                    <h5 style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Developer Guidance</h5>
+                    <p style="margin-bottom: 0.75rem; font-size: 0.9rem;">{{ f.developer_guidance }}</p>
+                    
+                    <h5 style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Manager Summary</h5>
+                    <p style="margin-bottom: 0.75rem; font-size: 0.9rem;">{{ f.manager_summary }}</p>
+                    
+                    <div style="font-size: 0.75rem; color: var(--text-muted); display: inline-block; padding: 0.2rem 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 3px;">
+                        Source: {{ f.explanation_source }}
+                    </div>
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
