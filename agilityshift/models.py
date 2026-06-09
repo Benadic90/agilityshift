@@ -24,6 +24,11 @@ class Finding:
     severity: str
     confidence: str
     suggestion: str
+    pqc_profile: str | None = None
+    required_size: int | None = None
+    overflow_ratio: float | None = None
+    readiness_penalty: int = 0
+    risk_message: str | None = None
 
 @dataclass
 class ScanSummary:
@@ -31,3 +36,11 @@ class ScanSummary:
     files_scanned: int
     supported_files: list[ScannedFile]
     skipped_files: int
+
+@dataclass
+class PQCProfile:
+    name: str
+    signature_bytes: int
+    level: int
+    type: str
+    description: str

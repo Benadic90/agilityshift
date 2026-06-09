@@ -2,9 +2,11 @@ import typer
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
-from agilityshift.scanner.repo_loader import RepoLoader
 
-app = typer.Typer(help="AgilityShift PQC Migration Breakage Scanner")
+from agilityshift.pqc.profile_loader import PQCProfileLoader
+from agilityshift.risk.scorer import RiskScorer
+
+app = typer.Typer(add_completion=False)
 console = Console()
 
 @app.callback()
@@ -13,46 +15,57 @@ def callback():
 
 @app.command()
 def scan(
-    target_path: Path = typer.Argument(..., help="Path to the target codebase"),
-    show_files: bool = typer.Option(True, "--show-files/--no-show-files", help="Show supported files"),
-    report: str = typer.Option("json", help="Report format"),
-    fail_on: str = typer.Option("none", help="Fail level")
+    path: Path = typer.Argument(None, help="Path to repository to scan"),
+    target_profile: str = typer.Option("ML-DSA-65", "--target-profile", help="Target PQC profile"),
+    list_profiles: bool = typer.Option(False, "--list-profiles", help="List available PQC profiles")
 ):
-    console.print("AgilityShift scanner starting...")
-    console.print(f"Target path: {target_path}")
-    console.print()
-
-    loader = RepoLoader(target_path)
-    
+    """
+    AgilityShift local-first PQC migration breakage scanner.
+    """
     try:
-        loader.validate_path()
-    except FileNotFoundError:
-        console.print(f"[bold red]Error:[/bold red] Target path does not exist: {target_path}")
-        raise typer.Exit(code=1)
+        loader = PQCProfileLoader()
+        if list_profiles:
+            profiles = loader.list_profile_names()
+            console.print("Available PQC profiles:")
+            for p in profiles:
+                console.print(f"- {p}")
+            raise typer.Exit()
+            
+        if not path:
+            console.print("[bold red]Error:[/bold red] Missing argument 'PATH'.")
+            raise typer.Exit(1)
+            
+        profile = loader.get_profile(target_profile)
+    except ValueError as e:
+        console.print(f"[bold red]Error:[/bold red] {str(e)}")
+        raise typer.Exit(1)
 
-    summary = loader.load_files()
+    console.print("[bold cyan]AgilityShift scanner starting...[/bold cyan]")
+    console.print(f"Target path: {path}")
+    console.print(f"Target PQC profile: {profile.name}")
+    console.print(f"Required signature size: {profile.signature_bytes} bytes\n")
+
+    from agilityshift.scanner.repo_loader import RepoLoader
+    repo = RepoLoader(path)
+    try:
+        repo.validate_path()
+    except FileNotFoundError:
+        console.print(f"[bold red]Error:[/bold red] Target path does not exist: {path}")
+        raise typer.Exit(code=1)
+        
+    summary = repo.load_files()
 
     console.print("[bold]Scan Summary[/bold]")
     console.print(f"Files scanned: {summary.files_scanned}")
-    console.print(f"Skipped files: {summary.skipped_files}")
-    console.print()
+    if summary.skipped_files > 0:
+        console.print(f"Skipped files: {summary.skipped_files}")
 
-    if not summary.supported_files:
-        console.print("[bold yellow]Warning:[/bold yellow] No supported files found.")
-    elif show_files:
-        console.print("[bold]Supported files[/bold]")
-        table = Table(show_header=False, box=None)
-        
-        # Sort files to ensure deterministic output (optional but good for expected output)
-        for i, file in enumerate(sorted(summary.supported_files, key=lambda f: str(f.path)), start=1):
-            table.add_row(
-                str(i),
-                file.relative_path,
-                file.extension,
-                str(file.line_count)
-            )
-        console.print(table)
-        console.print()
+    console.print("\n[bold]Supported files[/bold]")
+    table = Table(show_header=False, box=None)
+    for idx, f in enumerate(summary.supported_files):
+        table.add_row(str(idx + 1), f.relative_path, f.extension, str(f.line_count))
+    console.print(table)
+    console.print()
 
     from agilityshift.scanner.limit_detector import JavaScriptLimitDetector
     from agilityshift.scanner.db_schema_detector import SQLSchemaDetector
@@ -66,10 +79,26 @@ def scan(
     findings.extend(sql_detector.detect(summary.supported_files))
     findings.extend(api_detector.detect(summary.supported_files))
 
+    scorer = RiskScorer(profile)
+    findings = scorer.score_findings(findings)
+
+    console.print(f"Findings found: {len(findings)}\n")
+
     if not findings:
         console.print("[bold green]No JavaScript, SQL, or API fixed-limit findings detected.[/bold green]")
     else:
-        console.print("[bold]Findings[/bold]")
+        sev_summary = scorer.summarize_severity(findings)
+        console.print("[bold]Severity Summary[/bold]")
+        for sev, count in sev_summary.items():
+            if count > 0:
+                color = "bold red" if sev == "CRITICAL" else "red" if sev == "HIGH" else "yellow" if sev == "MEDIUM" else "cyan"
+                console.print(f"[{color}]{sev}: {count}[/{color}]")
+                
+        readiness = scorer.calculate_readiness_score(findings)
+        r_color = "bold red" if readiness < 50 else "yellow" if readiness < 80 else "bold green"
+        console.print(f"\n[bold]PQC Migration Readiness Score:[/bold] [{r_color}]{readiness}/100[/{r_color}]\n")
+
+        console.print("[bold]Findings table:[/bold]")
         ftable = Table(show_header=True, box=None)
         ftable.add_column("Severity")
         ftable.add_column("Type")
@@ -77,11 +106,16 @@ def scan(
         ftable.add_column("File")
         ftable.add_column("Line")
         ftable.add_column("Limit")
+        ftable.add_column("Required")
+        ftable.add_column("Ratio")
         ftable.add_column("Code")
         
         for f in findings:
-            sev_color = "bold red" if f.severity == "CRITICAL" else "red" if f.severity == "HIGH" else "yellow"
+            sev_color = "bold red" if f.severity == "CRITICAL" else "red" if f.severity == "HIGH" else "yellow" if f.severity == "MEDIUM" else "cyan"
             lim_str = f"{f.current_limit} {f.limit_unit}" if f.current_limit is not None else "N/A"
+            req_str = str(f.required_size) if f.required_size is not None else "N/A"
+            ratio_str = f"{f.overflow_ratio}x" if f.overflow_ratio is not None else "N/A"
+            
             ftable.add_row(
                 f"[{sev_color}]{f.severity}[/{sev_color}]",
                 f.finding_type,
@@ -89,14 +123,16 @@ def scan(
                 f.file_path,
                 str(f.line_number),
                 lim_str,
+                req_str,
+                ratio_str,
                 f.line_text
             )
         console.print(ftable)
 
     console.print()
-    console.print("Phase 5 complete:")
-    console.print("JavaScript, SQL, and API contract limit detectors are active.")
-    console.print("Risk scoring and reports will be added in later phases.")
+    console.print("Phase 6 complete:")
+    console.print("PQC profile engine and risk scoring are active.")
+    console.print("Reports will be added in Phase 7/8.")
 
 if __name__ == "__main__":
     app()

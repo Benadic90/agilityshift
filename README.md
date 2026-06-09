@@ -65,3 +65,24 @@ agilityshift scan ./examples/vulnerable-bank-api
 
 This helps detect API validation limits that may reject larger post-quantum signatures, keys, certificates, or proofs during migration.
 
+## Phase 6: PQC Profile + Risk Scoring
+
+Current features:
+- Target PQC profile support
+- Default profile: `ML-DSA-65`
+- Required signature size comparison
+- Overflow ratio calculation
+- Severity scoring
+- PQC migration readiness score
+
+Example:
+```bash
+agilityshift scan ./examples/vulnerable-bank-api --target-profile ML-DSA-65
+```
+
+Example result:
+- Current limit: 256 bytes
+- Required size: 3309 bytes
+- Overflow ratio: 12.93x
+- Severity: CRITICAL
+
