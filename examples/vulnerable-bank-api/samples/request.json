@@ -1,0 +1,6 @@
+{
+  "transactionId": "tx-123456",
+  "signature": "mock-signature",
+  "publicKey": "mock-public-key",
+  "certificate": "mock-certificate"
+}

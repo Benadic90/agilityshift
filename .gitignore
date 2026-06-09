@@ -1,0 +1,11 @@
+node_modules/
+venv/
+.env
+__pycache__/
+*.pyc
+dist/
+build/
+coverage/
+agilityshift-report.html
+agilityshift-report.json
+.DS_Store

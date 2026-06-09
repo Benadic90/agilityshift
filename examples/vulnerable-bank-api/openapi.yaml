@@ -1,0 +1,36 @@
+openapi: 3.0.0
+info:
+  title: Vulnerable Bank API
+  version: 1.0.0
+  description: A demo API with PQC migration vulnerabilities
+paths:
+  /api/payment/verify:
+    post:
+      summary: Verify a payment signature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - transactionId
+                - signature
+                - publicKey
+                - certificate
+              properties:
+                transactionId:
+                  type: string
+                  maxLength: 64
+                signature:
+                  type: string
+                  maxLength: 256
+                publicKey:
+                  type: string
+                  maxLength: 512
+                certificate:
+                  type: string
+                  maxLength: 2048
+      responses:
+        '200':
+          description: Payment verified

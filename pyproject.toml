@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agilityshift"
+version = "0.1.0"
+description = "Local-first Post-Quantum Cryptography migration breakage scanner"
+requires-python = ">=3.10"
+dependencies = [
+    "typer",
+    "rich",
+    "pyyaml",
+    "jinja2"
+]
+
+[project.scripts]
+agilityshift = "agilityshift.cli:app"

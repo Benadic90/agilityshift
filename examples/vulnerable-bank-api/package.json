@@ -1,0 +1,10 @@
+{
+  "name": "vulnerable-bank-api",
+  "version": "1.0.0",
+  "description": "A demo API with PQC migration vulnerabilities",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

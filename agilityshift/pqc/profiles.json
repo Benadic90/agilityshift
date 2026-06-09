@@ -1,0 +1,14 @@
+{
+  "ML-DSA-44": {
+    "signature_bytes": 2420,
+    "level": 2
+  },
+  "ML-DSA-65": {
+    "signature_bytes": 3309,
+    "level": 3
+  },
+  "ML-DSA-87": {
+    "signature_bytes": 4627,
+    "level": 5
+  }
+}
