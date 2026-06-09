@@ -2,6 +2,10 @@ import typer
 
 app = typer.Typer(help="AgilityShift PQC Migration Breakage Scanner")
 
+@app.callback()
+def callback():
+    pass
+
 @app.command()
 def scan(
     target_path: str = typer.Argument(..., help="Path to the target codebase"),
