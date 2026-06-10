@@ -1,9 +1,10 @@
 import agilityshift_config as config # Auto-injected PQC policy
+import agilityshift_config as config # Auto-injected PQC policy
 import hashlib
 
 # Example of a hardcoded size constant
 MAX_SIGNATURE_SIZE = config.crypto.maxSignatureBytes
-MAX_PUBLIC_KEY_SIZE = 512
+MAX_PUBLIC_KEY_SIZE = config.crypto.maxPublicKeyBytes
 
 def verify_payment(payment_id: str, signature: bytes, public_key: bytes):
     # Truncation risk: this will destroy PQC signatures
