@@ -1,14 +1,58 @@
-import { useState } from 'react';
-import reportData from './data/sample-report.json';
+import { useState, useEffect } from 'react';
 import SummaryCards from './components/SummaryCards';
 import ReadinessScore from './components/ReadinessScore';
 import SeverityBreakdown from './components/SeverityBreakdown';
 import FindingsTable from './components/FindingsTable';
 import FindingDetail from './components/FindingDetail';
 import SuggestedFixes from './components/SuggestedFixes';
+import BlastRadiusGraph from './components/BlastRadiusGraph';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('table');
   const [selectedFinding, setSelectedFinding] = useState(null);
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('/agilityshift-report.json')
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Report not found. Please run the agilityshift scanner first.');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setReportData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-dark text-slate-100 flex items-center justify-center font-sans">
+        <div className="text-xl font-semibold animate-pulse text-cyan">Loading AgilityShift Report...</div>
+      </div>
+    );
+  }
+
+  if (error || !reportData) {
+    return (
+      <div className="min-h-screen bg-dark text-slate-100 flex items-center justify-center font-sans">
+        <div className="bg-card border border-border p-8 rounded-xl max-w-lg text-center">
+          <h2 className="text-2xl font-bold text-critical mb-4">No Scan Data Found</h2>
+          <p className="text-slate-400 mb-6">{error || 'Could not load report data.'}</p>
+          <div className="bg-dark p-4 rounded-lg text-left font-mono text-sm border border-border text-slate-300">
+            $ agilityshift scan ./examples/vulnerable-python-api --report all
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const { scan, severity_summary, findings } = reportData;
 
@@ -78,10 +122,30 @@ function App() {
           </div>
         </div>
 
+        {/* View Toggle */}
+        <div className="flex space-x-2 border-b border-border pb-2">
+          <button 
+            className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${activeTab === 'table' ? 'bg-card text-white border-t border-l border-r border-border' : 'text-slate-400 hover:text-white'}`}
+            onClick={() => setActiveTab('table')}
+          >
+            Findings Table
+          </button>
+          <button 
+            className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${activeTab === 'graph' ? 'bg-card text-white border-t border-l border-r border-border' : 'text-slate-400 hover:text-white'}`}
+            onClick={() => setActiveTab('graph')}
+          >
+            Blast Radius Graph
+          </button>
+        </div>
+
         {/* Main Content Area */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 flex flex-col h-[600px] bg-card border border-border rounded-xl overflow-hidden">
-            <FindingsTable findings={findings} onSelectFinding={handleSelectFinding} />
+            {activeTab === 'table' ? (
+              <FindingsTable findings={findings} onSelectFinding={handleSelectFinding} />
+            ) : (
+              <BlastRadiusGraph reportData={reportData} />
+            )}
           </div>
           <div className="bg-card border border-border rounded-xl overflow-hidden h-[600px] overflow-y-auto">
             <FindingDetail finding={selectedFinding} />

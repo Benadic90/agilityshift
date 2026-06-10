@@ -28,7 +28,8 @@ def scan(
     explain_mode: str = typer.Option("template", "--explain-mode", help="Explanation engine to use (template, none)"),
     use_ollama: bool = typer.Option(True, "--use-ollama", help="Use local Ollama for AI explanations"),
     ollama_model: str = typer.Option("qwen2.5-coder:0.5b", "--ollama-model", help="Ollama model to use"),
-    ollama_url: str = typer.Option("http://localhost:11434", "--ollama-url", help="Ollama API URL")
+    ollama_url: str = typer.Option("http://localhost:11434", "--ollama-url", help="Ollama API URL"),
+    create_pr: bool = typer.Option(False, "--create-pr", help="Automatically generate an auto-fix Pull Request")
 ):
     """
     AgilityShift local-first PQC migration breakage scanner.
@@ -201,6 +202,12 @@ def scan(
         )
         report_files.append("agilityshift-report.json")
         
+        # Innovate: Auto-sync to dashboard for live demo
+        dashboard_public = Path(__file__).parent.parent / "dashboard" / "public"
+        if dashboard_public.exists():
+            import shutil
+            shutil.copy(out_path, dashboard_public / "agilityshift-report.json")
+        
     if report in ["html", "all"]:
         from agilityshift.reports.html_report import HTMLReportWriter
         h_writer = HTMLReportWriter()
@@ -228,6 +235,12 @@ def scan(
         console.print("\n[bold]Reports generated:[/bold]")
         for report_file in report_files:
             console.print(f"- {report_file}")
+
+    if create_pr and findings:
+        from agilityshift.fixes.pr_generator import PRGenerator
+        console.print("\n[bold cyan]Starting Auto-Fix PR Generation...[/bold cyan]")
+        pr_gen = PRGenerator(target_repo=path)
+        pr_gen.generate_pr(findings)
 
     console.print()
     console.print("Phase 11 complete:")

@@ -1,7 +1,7 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:8240407c-a012-4d31-a540-ad2dca86c071",
+  "serialNumber": "urn:uuid:0c25d0f7-c2de-43e1-b4b1-22f457e8bc83",
   "version": 1,
   "metadata": {
     "tools": {
@@ -15,7 +15,7 @@
     },
     "component": {
       "type": "application",
-      "name": "examples\\vulnerable-bank-api",
+      "name": "examples\\vulnerable-python-api",
       "properties": [
         {
           "name": "agilityshift:pqcProfile",
@@ -30,15 +30,15 @@
     "properties": [
       {
         "name": "agilityshift:summary:totalCryptoAssets",
-        "value": "13"
+        "value": "6"
       },
       {
         "name": "agilityshift:summary:criticalAssets",
-        "value": "7"
+        "value": "4"
       },
       {
         "name": "agilityshift:summary:highAssets",
-        "value": "4"
+        "value": "2"
       },
       {
         "name": "agilityshift:summary:pqcReadinessConcern",
@@ -50,44 +50,6 @@
     {
       "type": "cryptographic-asset",
       "bom-ref": "crypto-asset-1",
-      "name": "signature",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material"
-      },
-      "properties": [
-        {
-          "name": "agilityshift:sourceRuleId",
-          "value": "JS_CRYPTO_LIMIT_CONSTANT"
-        },
-        {
-          "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 bytes/chars limit. This may break during PQC migration."
-        },
-        {
-          "name": "agilityshift:severity",
-          "value": "CRITICAL"
-        },
-        {
-          "name": "agilityshift:recommendedAction",
-          "value": "Remove hardcoded fixed limits. Use dynamic decoding and validate against a configurable PQC policy. Review with the security team."
-        },
-        {
-          "name": "agilityshift:usage",
-          "value": "authentication or signature verification"
-        },
-        {
-          "name": "agilityshift:location:file",
-          "value": "src\\auth\\verify.js"
-        },
-        {
-          "name": "agilityshift:location:line",
-          "value": "4"
-        }
-      ]
-    },
-    {
-      "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-2",
       "name": "public_key",
       "cryptoProperties": {
         "assetType": "related-crypto-material"
@@ -95,7 +57,7 @@
       "properties": [
         {
           "name": "agilityshift:sourceRuleId",
-          "value": "JS_CRYPTO_LIMIT_CONSTANT"
+          "value": "PY_CRYPTO_LIMIT_CONSTANT"
         },
         {
           "name": "agilityshift:migrationRisk",
@@ -107,19 +69,57 @@
         },
         {
           "name": "agilityshift:recommendedAction",
-          "value": "Remove hardcoded fixed limits. Use dynamic decoding and validate against a configurable PQC policy. Review with the security team."
+          "value": "Review this code, database field, or API contract against the target PQC migration profile."
         },
         {
           "name": "agilityshift:usage",
-          "value": "authentication or signature verification"
+          "value": "cryptographic material handling"
         },
         {
           "name": "agilityshift:location:file",
-          "value": "src\\auth\\verify.js"
+          "value": "test.py"
         },
         {
           "name": "agilityshift:location:line",
-          "value": "5"
+          "value": "6"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-asset-2",
+      "name": "signature",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material"
+      },
+      "properties": [
+        {
+          "name": "agilityshift:sourceRuleId",
+          "value": "PY_CRYPTO_TRUNCATION_LIMIT"
+        },
+        {
+          "name": "agilityshift:migrationRisk",
+          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 chars/bytes limit. This may break during PQC migration."
+        },
+        {
+          "name": "agilityshift:severity",
+          "value": "CRITICAL"
+        },
+        {
+          "name": "agilityshift:recommendedAction",
+          "value": "Review this code, database field, or API contract against the target PQC migration profile."
+        },
+        {
+          "name": "agilityshift:usage",
+          "value": "cryptographic material handling"
+        },
+        {
+          "name": "agilityshift:location:file",
+          "value": "test.py"
+        },
+        {
+          "name": "agilityshift:location:line",
+          "value": "10"
         }
       ]
     },
@@ -133,11 +133,11 @@
       "properties": [
         {
           "name": "agilityshift:sourceRuleId",
-          "value": "JS_BUFFER_ALLOC_FIXED_SIZE"
+          "value": "PY_CRYPTO_LENGTH_LIMIT"
         },
         {
           "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 bytes limit. This may break during PQC migration."
+          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 chars/bytes limit. This may break during PQC migration."
         },
         {
           "name": "agilityshift:severity",
@@ -145,101 +145,25 @@
         },
         {
           "name": "agilityshift:recommendedAction",
-          "value": "Remove hardcoded fixed limits. Use dynamic decoding and validate against a configurable PQC policy. Review with the security team."
+          "value": "Review this code, database field, or API contract against the target PQC migration profile."
         },
         {
           "name": "agilityshift:usage",
-          "value": "authentication or signature verification"
+          "value": "cryptographic material handling"
         },
         {
           "name": "agilityshift:location:file",
-          "value": "src\\auth\\verify.js"
+          "value": "test.py"
         },
         {
           "name": "agilityshift:location:line",
-          "value": "9"
+          "value": "13"
         }
       ]
     },
     {
       "type": "cryptographic-asset",
       "bom-ref": "crypto-asset-4",
-      "name": "signature",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material"
-      },
-      "properties": [
-        {
-          "name": "agilityshift:sourceRuleId",
-          "value": "JS_CRYPTO_LENGTH_LIMIT"
-        },
-        {
-          "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 chars/bytes limit. This may break during PQC migration."
-        },
-        {
-          "name": "agilityshift:severity",
-          "value": "CRITICAL"
-        },
-        {
-          "name": "agilityshift:recommendedAction",
-          "value": "Remove hardcoded fixed limits. Use dynamic decoding and validate against a configurable PQC policy. Review with the security team."
-        },
-        {
-          "name": "agilityshift:usage",
-          "value": "authentication or signature verification"
-        },
-        {
-          "name": "agilityshift:location:file",
-          "value": "src\\auth\\verify.js"
-        },
-        {
-          "name": "agilityshift:location:line",
-          "value": "12"
-        }
-      ]
-    },
-    {
-      "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-5",
-      "name": "signature",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material"
-      },
-      "properties": [
-        {
-          "name": "agilityshift:sourceRuleId",
-          "value": "JS_CRYPTO_TRUNCATION_LIMIT"
-        },
-        {
-          "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 chars/bytes limit. This may break during PQC migration."
-        },
-        {
-          "name": "agilityshift:severity",
-          "value": "CRITICAL"
-        },
-        {
-          "name": "agilityshift:recommendedAction",
-          "value": "Remove hardcoded fixed limits. Use dynamic decoding and validate against a configurable PQC policy. Review with the security team."
-        },
-        {
-          "name": "agilityshift:usage",
-          "value": "authentication or signature verification"
-        },
-        {
-          "name": "agilityshift:location:file",
-          "value": "src\\auth\\verify.js"
-        },
-        {
-          "name": "agilityshift:location:line",
-          "value": "17"
-        }
-      ]
-    },
-    {
-      "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-6",
       "name": "public_key",
       "cryptoProperties": {
         "assetType": "related-crypto-material"
@@ -247,11 +171,11 @@
       "properties": [
         {
           "name": "agilityshift:sourceRuleId",
-          "value": "SQL_CRYPTO_VARCHAR_LIMIT"
+          "value": "PY_CRYPTO_LENGTH_LIMIT"
         },
         {
           "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 6.46x larger than the current 512 characters limit. This is a high migration breakage risk. Note: Character limits may differ from byte limits depending on encoding."
+          "value": "ML-DSA-65 requires 3309 bytes, which is 3.23x larger than the current 1024 chars/bytes limit. This is a high migration breakage risk."
         },
         {
           "name": "agilityshift:severity",
@@ -259,7 +183,7 @@
         },
         {
           "name": "agilityshift:recommendedAction",
-          "value": "Review the line, its current limit, and its relationship to cryptographic signatures, keys, certificates, tokens, or proofs."
+          "value": "Review this code, database field, or API contract against the target PQC migration profile."
         },
         {
           "name": "agilityshift:usage",
@@ -267,93 +191,17 @@
         },
         {
           "name": "agilityshift:location:file",
-          "value": "schema.sql"
+          "value": "test.py"
         },
         {
           "name": "agilityshift:location:line",
-          "value": "7"
+          "value": "16"
         }
       ]
     },
     {
       "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-7",
-      "name": "certificate",
-      "cryptoProperties": {
-        "assetType": "certificate"
-      },
-      "properties": [
-        {
-          "name": "agilityshift:sourceRuleId",
-          "value": "SQL_CRYPTO_VARCHAR_LIMIT"
-        },
-        {
-          "name": "agilityshift:migrationRisk",
-          "value": "Target PQC size is larger than the current limit. Review and increase this limit. Note: Character limits may differ from byte limits depending on encoding."
-        },
-        {
-          "name": "agilityshift:severity",
-          "value": "MEDIUM"
-        },
-        {
-          "name": "agilityshift:recommendedAction",
-          "value": "Review the line, its current limit, and its relationship to cryptographic signatures, keys, certificates, tokens, or proofs."
-        },
-        {
-          "name": "agilityshift:usage",
-          "value": "cryptographic material handling"
-        },
-        {
-          "name": "agilityshift:location:file",
-          "value": "schema.sql"
-        },
-        {
-          "name": "agilityshift:location:line",
-          "value": "9"
-        }
-      ]
-    },
-    {
-      "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-8",
-      "name": "signature",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material"
-      },
-      "properties": [
-        {
-          "name": "agilityshift:sourceRuleId",
-          "value": "SQL_CRYPTO_VARCHAR_LIMIT"
-        },
-        {
-          "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 characters limit. This may break during PQC migration. Note: Character limits may differ from byte limits depending on encoding."
-        },
-        {
-          "name": "agilityshift:severity",
-          "value": "CRITICAL"
-        },
-        {
-          "name": "agilityshift:recommendedAction",
-          "value": "Review the line, its current limit, and its relationship to cryptographic signatures, keys, certificates, tokens, or proofs."
-        },
-        {
-          "name": "agilityshift:usage",
-          "value": "cryptographic material handling"
-        },
-        {
-          "name": "agilityshift:location:file",
-          "value": "schema.sql"
-        },
-        {
-          "name": "agilityshift:location:line",
-          "value": "17"
-        }
-      ]
-    },
-    {
-      "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-9",
+      "bom-ref": "crypto-asset-5",
       "name": "token",
       "cryptoProperties": {
         "assetType": "related-crypto-material"
@@ -361,19 +209,19 @@
       "properties": [
         {
           "name": "agilityshift:sourceRuleId",
-          "value": "SQL_CRYPTO_VARCHAR_LIMIT"
+          "value": "PY_CRYPTO_LIMIT_CONSTANT"
         },
         {
           "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 6.46x larger than the current 512 characters limit. This is a high migration breakage risk. Note: Character limits may differ from byte limits depending on encoding."
+          "value": "ML-DSA-65 requires 3309 bytes, which is 25.85x larger than the current 128 bytes/chars limit. This may break during PQC migration."
         },
         {
           "name": "agilityshift:severity",
-          "value": "HIGH"
+          "value": "CRITICAL"
         },
         {
           "name": "agilityshift:recommendedAction",
-          "value": "Review the line, its current limit, and its relationship to cryptographic signatures, keys, certificates, tokens, or proofs."
+          "value": "Review this code, database field, or API contract against the target PQC migration profile."
         },
         {
           "name": "agilityshift:usage",
@@ -381,7 +229,7 @@
         },
         {
           "name": "agilityshift:location:file",
-          "value": "schema.sql"
+          "value": "test.py"
         },
         {
           "name": "agilityshift:location:line",
@@ -391,19 +239,19 @@
     },
     {
       "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-10",
-      "name": "proof",
+      "bom-ref": "crypto-asset-6",
+      "name": "token",
       "cryptoProperties": {
         "assetType": "related-crypto-material"
       },
       "properties": [
         {
           "name": "agilityshift:sourceRuleId",
-          "value": "SQL_CRYPTO_VARCHAR_LIMIT"
+          "value": "PY_CRYPTO_TRUNCATION_LIMIT"
         },
         {
           "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 characters limit. This may break during PQC migration. Note: Character limits may differ from byte limits depending on encoding."
+          "value": "ML-DSA-65 requires 3309 bytes, which is 25.85x larger than the current 128 chars/bytes limit. This may break during PQC migration."
         },
         {
           "name": "agilityshift:severity",
@@ -411,7 +259,7 @@
         },
         {
           "name": "agilityshift:recommendedAction",
-          "value": "Review the line, its current limit, and its relationship to cryptographic signatures, keys, certificates, tokens, or proofs."
+          "value": "Review this code, database field, or API contract against the target PQC migration profile."
         },
         {
           "name": "agilityshift:usage",
@@ -419,125 +267,11 @@
         },
         {
           "name": "agilityshift:location:file",
-          "value": "schema.sql"
+          "value": "test.py"
         },
         {
           "name": "agilityshift:location:line",
-          "value": "26"
-        }
-      ]
-    },
-    {
-      "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-11",
-      "name": "crypto_material",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material"
-      },
-      "properties": [
-        {
-          "name": "agilityshift:sourceRuleId",
-          "value": "API_CRYPTO_MAX_LENGTH_LIMIT"
-        },
-        {
-          "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 12.93x larger than the current 256 characters limit. This may break during PQC migration. Note: Character limits may differ from byte limits depending on encoding."
-        },
-        {
-          "name": "agilityshift:severity",
-          "value": "CRITICAL"
-        },
-        {
-          "name": "agilityshift:recommendedAction",
-          "value": "Review the line, its current limit, and its relationship to cryptographic signatures, keys, certificates, tokens, or proofs."
-        },
-        {
-          "name": "agilityshift:usage",
-          "value": "cryptographic material handling"
-        },
-        {
-          "name": "agilityshift:location:file",
-          "value": "openapi.yaml"
-        },
-        {
-          "name": "agilityshift:location:line",
-          "value": "27"
-        }
-      ]
-    },
-    {
-      "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-12",
-      "name": "crypto_material",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material"
-      },
-      "properties": [
-        {
-          "name": "agilityshift:sourceRuleId",
-          "value": "API_CRYPTO_MAX_LENGTH_LIMIT"
-        },
-        {
-          "name": "agilityshift:migrationRisk",
-          "value": "ML-DSA-65 requires 3309 bytes, which is 6.46x larger than the current 512 characters limit. This is a high migration breakage risk. Note: Character limits may differ from byte limits depending on encoding."
-        },
-        {
-          "name": "agilityshift:severity",
-          "value": "HIGH"
-        },
-        {
-          "name": "agilityshift:recommendedAction",
-          "value": "Review the line, its current limit, and its relationship to cryptographic signatures, keys, certificates, tokens, or proofs."
-        },
-        {
-          "name": "agilityshift:usage",
-          "value": "cryptographic material handling"
-        },
-        {
-          "name": "agilityshift:location:file",
-          "value": "openapi.yaml"
-        },
-        {
-          "name": "agilityshift:location:line",
-          "value": "30"
-        }
-      ]
-    },
-    {
-      "type": "cryptographic-asset",
-      "bom-ref": "crypto-asset-13",
-      "name": "crypto_material",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material"
-      },
-      "properties": [
-        {
-          "name": "agilityshift:sourceRuleId",
-          "value": "API_CRYPTO_MAX_LENGTH_LIMIT"
-        },
-        {
-          "name": "agilityshift:migrationRisk",
-          "value": "Target PQC size is larger than the current limit. Review and increase this limit. Note: Character limits may differ from byte limits depending on encoding."
-        },
-        {
-          "name": "agilityshift:severity",
-          "value": "MEDIUM"
-        },
-        {
-          "name": "agilityshift:recommendedAction",
-          "value": "Review the line, its current limit, and its relationship to cryptographic signatures, keys, certificates, tokens, or proofs."
-        },
-        {
-          "name": "agilityshift:usage",
-          "value": "cryptographic material handling"
-        },
-        {
-          "name": "agilityshift:location:file",
-          "value": "openapi.yaml"
-        },
-        {
-          "name": "agilityshift:location:line",
-          "value": "33"
+          "value": "29"
         }
       ]
     }

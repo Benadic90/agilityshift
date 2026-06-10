@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "force-graph": "^1.51.4",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "react-force-graph-2d": "^1.29.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
