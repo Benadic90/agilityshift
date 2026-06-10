@@ -1,145 +1,111 @@
-# AgilityShift
+<div align="center">
+  
+  # 🚀 AgilityShift
+  
+  **Find where post-quantum cryptography migration will break your code before production fails.**
 
-Find where post-quantum cryptography migration will break your code before production fails.
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![React](https://img.shields.io/badge/React-18.x-blue)](https://reactjs.org/)
+  [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+  [![PQC Ready](https://img.shields.io/badge/PQC-Migration_Ready-success)](#)
 
-> "Existing tools tell you where crypto is. AgilityShift tells you where post-quantum migration will break your code."
+  > *"Existing tools tell you where crypto is. AgilityShift tells you where post-quantum migration will break your code—and then fixes it for you."*
 
-## What is AgilityShift?
-AgilityShift is a local-first Post-Quantum Cryptography (PQC) migration breakage scanner. It deeply analyzes source code, database schemas, and API contracts to find hardcoded size limits that will shatter when you swap old cryptography for large post-quantum algorithms.
+  **Created with ❤️ by Benadic**
 
-## Why this matters
-The Problem: Post-quantum migration is coming. As organizations prepare for quantum-safe cryptography, they must transition to algorithms like ML-DSA. However, legacy applications have hidden size assumptions—such as `Buffer.alloc(256)`, `VARCHAR(256)`, or `maxLength: 256`—that implicitly expect tiny RSA or ECDSA artifacts.
-The Solution: AgilityShift acts as a pre-migration safety scanner. It highlights exactly where your architecture will silently break, calculates overflow ratios against formal PQC profiles, and suggests remediation strategies.
+</div>
 
-## Demo Story
-Imagine a vulnerable banking API (`examples/vulnerable-bank-api`). It works fine today, but uses hardcoded 256-byte limits for its signatures. Running AgilityShift uncovers 13 distinct breakage points across the frontend JS, the database SQL, and the OpenAPI contract—generating an interactive security dashboard and actionable HTML reports to guide the migration.
+---
 
-## MVP Status
-✅ Local CLI scanner
-✅ JS/TS detector
-✅ SQL schema detector
-✅ OpenAPI/YAML/JSON detector
-✅ PQC profile and risk scoring
-✅ Suggested fix engine
-✅ Template security explanation
-✅ JSON and HTML reports
-✅ CI/CD failure gate
-✅ Interactive dashboard
+## 🌌 The Problem: Y2Q is Coming
+Post-quantum migration is coming. As organizations prepare for quantum-safe cryptography, they must transition to algorithms like `ML-DSA`. 
 
-## Features
-✅ **Local CLI scanner**: Offline first, no source code upload.
-✅ **JS/TS detector**: Catches `Buffer.alloc` and string length assumptions.
-✅ **SQL schema detector**: Identifies constrictive `VARCHAR`/`BLOB` fields.
-✅ **OpenAPI/YAML/JSON detector**: Detects constrictive `maxLength` bounds.
-✅ **PQC profile and risk scoring**: Calculates precise overflow ratios (e.g. 12.93x) against targets like `ML-DSA-65`.
-✅ **Suggested fix engine**: Provides remediation code patterns.
-✅ **Template security explanation**: Translates obscure constraints into developer guidance and manager summaries.
-✅ **JSON and HTML reports**: Robust enterprise output tracking.
-✅ **CI/CD failure gate**: Block deployments before risky bounds hit production.
-✅ **Interactive dashboard**: React/Tailwind visual triage.
+However, legacy applications have **hidden size assumptions**—such as `Buffer.alloc(256)`, `VARCHAR(256)`, or `maxLength: 256`—that implicitly expect tiny RSA or ECDSA artifacts. When you swap in massive Post-Quantum signatures, your application will silently truncate data, corrupt databases, and crash in production.
 
-## Tech Stack
-- **Core Engine:** Python 3.11, Typer (CLI), Rich (UI), Jinja2 (HTML Generation).
-- **Dashboard:** React, Vite, Tailwind CSS.
+## 🛠️ The Solution: AgilityShift
+AgilityShift acts as a pre-migration safety scanner and automated remediation engine. 
 
-## Architecture
-See [docs/architecture.md](docs/architecture.md) for full pipeline flow.
+It deeply analyzes source code, database schemas, and API contracts to highlight exactly where your architecture will shatter, calculates overflow ratios against formal PQC profiles, and **automatically generates Pull Requests** to fix them.
 
-## Quick Start
+---
 
-### 1. Install Scanner
+## ✨ Why It's "Wonderful" (Key Features)
+
+### 📊 Executive Blast Radius Graph
+Don't just look at tables. AgilityShift parses your Cryptography Bill of Materials (CBOM) and renders a physics-based, interactive 2D network graph showing exactly which files and variables are at critical risk of breaking.
+
+### 🤖 Auto-Fix PR Generation
+AgilityShift doesn't just find the bug; it fixes it. The core engine dynamically rewrites your vulnerable code to use safe, policy-driven configurations, isolates it in a new branch, and seamlessly opens a GitHub Pull Request (`gh`). 
+
+### 🧠 Local AI Explanations via Ollama
+We use local-first LLMs (like `qwen2.5-coder`) to generate deep, contextual security explanations and manager summaries—without your code ever leaving your machine.
+
+### 🛡️ Enterprise DevSecOps Native
+Built for CI/CD. It exports to `SARIF` natively for **GitHub Advanced Security**, generates CycloneDX-inspired `CBOM` json files, and can block deployments as a strict CI/CD failure gate.
+
+### 🔍 Advanced AST Detection
+Uses native Abstract Syntax Tree (AST) parsing for languages like Python and JS to eliminate false positives and find the real constraints.
+
+---
+
+## ⚡ Interactive Quick Start
+
+Get AgilityShift running locally in under 60 seconds!
+
+### 1. Install the Core Engine
 ```bash
+# Clone the repository
+git clone https://github.com/Benadic90/agilityshift.git
+cd agilityshift
+
+# Install the CLI
 pip install -e .
 ```
 
-### 2. Run Scanner
-Run the basic scan:
+### 2. Run the Auto-Fix Scanner!
+Watch the magic happen. Scan the vulnerable Python example, generate all enterprise reports, and trigger the Auto-Fix PR engine:
+
 ```bash
-agilityshift scan ./examples/vulnerable-bank-api
+agilityshift scan ./examples/vulnerable-python-api --report all --create-pr
 ```
 
-### 3. Generate ReportDisable explanations:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --no-explain
-```
+### 3. Launch the Interactive Dashboard & Blast Radius Graph
+Boot up the visual triage system:
 
-Explain:
-For enterprise safety, AgilityShift uses template-based explanations by default. Future versions may support local LLMs such as Ollama, but the core scanner does not require internet or cloud AI.
-
-## Phase 13: SARIF Export
-
-AgilityShift can export findings in SARIF format for code scanning workflows.
-
-Commands:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --report sarif
-
-agilityshift scan ./examples/vulnerable-bank-api --report all
-```
-
-Generated file:
-`agilityshift-report.sarif`
-
-Explain:
-SARIF export helps integrate AgilityShift findings into DevSecOps workflows such as GitHub code scanning.
-
-## Phase 14: CBOM-style Crypto Inventory Export
-
-AgilityShift can generate an experimental CBOM-style crypto inventory to help teams understand cryptographic assets affected by PQC migration.
-
-Commands:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --report cbom
-
-agilityshift scan ./examples/vulnerable-bank-api --report all
-```
-
-Generated file:
-`agilityshift-cbom.json`
-
-Explain:
-This export is CycloneDX-inspired and designed for PQC migration readiness. It is not yet a complete official CycloneDX CBOM implementation.
-
-### 4. CI/CD Failure Gate
-Block deployments if CRITICAL issues are discovered:
-```bash
-agilityshift scan ./examples/vulnerable-bank-api --report all --fail-on critical
-```
-
-### 5. Launch Interactive Dashboard
 ```bash
 cd dashboard
 npm install
 npm run dev
 ```
+🌐 Open `http://localhost:5173` in your browser. Click **"Blast Radius Graph"** to interact with your codebase!
 
-### 6. Run Test Suite
+### 4. Test the CI/CD Gate
+Prove it works in a pipeline by setting a strict failure threshold:
 ```bash
-pytest
+agilityshift scan ./examples/vulnerable-python-api --fail-on critical
 ```
 
-## Example Findings
-AgilityShift locates limits like `const sigBuffer = Buffer.alloc(256);` and outputs:
-- **Severity**: CRITICAL
-- **Required Size**: 3309 bytes (`ML-DSA-65`)
-- **Overflow Ratio**: 12.93x
-- **Remediation**: Use dynamic decoding and validate against a configurable PQC policy.
+---
 
-## Security and Privacy Model
+## 📁 Architecture Flow
+
+1. **CLI Engine** parses files using AST/Regex against PQC Profiles (e.g. `ML-DSA-65`).
+2. **AI Layer** passes findings to a local Ollama instance for context extraction.
+3. **Report Generator** syncs findings to `JSON`, `HTML`, `SARIF`, and `CBOM`.
+4. **Auto-Fixer** applies remediations and triggers Git/GH CLI commands.
+5. **React Frontend** polls the reports and renders visual components and network graphs.
+
+---
+
+## 🔒 Security and Privacy Model
 - **Local-first scanning**: Your code never leaves your machine. No cloud API calls are required to scan or evaluate risk.
-- **CI/CD native**: The engine runs inside your private build environment.
+- **CI/CD native**: The engine runs securely inside your private build environment.
 
-## Limitations
-- Uses advanced pattern-based detection which may yield false positives.
-- Supports a limited subset of languages (JS/TS, SQL schemas, API YAML).
+---
 
-## Future Roadmap
-- AST parsing via Tree-sitter for complex data-flow tracing.
-- Native SARIF and CBOM (Cryptography Bill of Materials) export.
-- Local LLM explanation engine via Ollama.
+## 👨‍💻 Author
+**Benadic**  
+Passionate about cryptography, DevSecOps, and making the post-quantum transition safe and seamless for everyone.
 
-## Hackathon Demo Script
-Check out [demo_script.md](demo_script.md) for our 4-minute presentation guide.
-
-## License
-MIT License.
+## 📄 License
+This project is licensed under the MIT License.
