@@ -1,26 +1,15 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
-[project]
+[tool.poetry]
 name = "agilityshift"
 version = "0.1.0"
-description = "Local-first Post-Quantum Cryptography migration breakage scanner"
-requires-python = ">=3.10"
-dependencies = [
-    "typer",
-    "rich",
-    "pyyaml",
-    "jinja2",
-    "jsonschema",
-    "tree-sitter",
-    "tree-sitter-javascript",
-    "tree-sitter-typescript",
-    "requests"
-]
+description = ""
+authors = ["Your Name <your.email@example.com>"]
 
-[project.scripts]
-agilityshift = "agilityshift.cli:app"
+[tool.poetry.dependencies]
+python = "^3.8"
 
-[tool.setuptools.packages.find]
-include = ["agilityshift*"]
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
